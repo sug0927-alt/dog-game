@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>犬種ミニゲーム</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="犬好きなら60秒で何点取れる？写真の犬の犬種を4択で当てるミニゲーム。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5FA; --card:#FFFFFF; --ink:#1D2340; --sub:#6B7290; --line:#DFE3EE; --lineD:#C5CBDB;
+  --asset:#1E7FE0; --assetD:#1561AD;
+  --liab:#8B47D6; --liabD:#6A30A8;
+  --equity:#22A45A; --equityD:#187A42;
+  --rev:#F2A20C; --revD:#BF7E00;
+  --exp:#EE4D5F; --expD:#BA3243;
+  --dr:#1E7FE0; --drD:#1561AD; --cr:#F07A2B; --crD:#BF5A17;
+  --good:#22A45A; --goodBg:#DDF5E6; --bad:#E5404F; --badBg:#FDE3E5;
+  --fire:#FF7A1A;
+  --display:"Dela Gothic One","M PLUS Rounded 1c","Hiragino Sans",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12162A; --card:#1E2440; --ink:#EEF1FA; --sub:#9AA2C0; --line:#2D3558; --lineD:#0B0E1C;
+    --goodBg:#163A28; --badBg:#41161C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12162A; --card:#1E2440; --ink:#EEF1FA; --sub:#9AA2C0; --line:#2D3558; --lineD:#0B0E1C;
+  --goodBg:#163A28; --badBg:#41161C;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;font-weight:700;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.app{max-width:440px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:14px 16px 16px}
+.screen{display:none;flex:1;flex-direction:column;min-height:0}
+.screen.on{display:flex}
+button,a.btn{font-family:inherit;font-weight:800;cursor:pointer;-webkit-user-select:none;user-select:none}
+button:focus-visible,a:focus-visible{outline:3px solid var(--asset);outline-offset:3px}
+
+/* 立体ボタン */
+.chunky{border:0;border-radius:16px;color:#fff;box-shadow:0 5px 0 var(--sh);transform:translateY(0);transition:transform .05s,box-shadow .05s}
+.chunky:active{transform:translateY(4px);box-shadow:0 1px 0 var(--sh)}
+.btn-main{display:block;width:100%;padding:17px;font-size:18px;background:var(--asset);--sh:var(--assetD);text-align:center;text-decoration:none}
+.btn-ghost{display:block;width:100%;padding:15px;font-size:16px;background:var(--card);color:var(--ink);border:2px solid var(--line);--sh:var(--line);border-radius:16px;box-shadow:0 4px 0 var(--line)}
+.btn-ghost:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.btn-x{background:#111;--sh:#000;color:#fff}
+
+/* メニュー */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.topbar .snd{flex:none}
+@media (max-width:359px){.topbar{flex-direction:column-reverse;align-items:flex-start}.topbar .snd{align-self:flex-end}.brandrow .brand{font-size:28px;white-space:nowrap}}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-size:15px}
+.pill .fire{font-size:18px}
+/* Xアプリ内ブラウザで開いたときの案内 */
+.inapp{display:flex;align-items:flex-start;gap:8px;background:#FFF4E5;color:#7A4A00;border:2px solid #FFC98A;border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:13px;line-height:1.6}
+.inapp[hidden]{display:none}
+.inapp p{margin:0;flex:1}
+.inapp button{flex:none;border:0;background:transparent;color:#7A4A00;font-size:16px;padding:0 2px;cursor:pointer}
+.kicker{display:inline-block;background:var(--fire);color:#fff;font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:13px;line-height:1.45;padding:7px 14px;border-radius:16px;box-shadow:0 3px 0 #C25500}
+.pill b{color:var(--fire);font-family:var(--display);font-weight:400;font-size:18px}
+.brand{font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:34px;line-height:1.2;letter-spacing:.02em;margin:6px 0 6px}
+.lead{color:var(--sub);margin:0 0 20px;font-size:14px;line-height:1.7}
+.tile{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;margin-bottom:16px;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:20px;box-shadow:0 5px 0 var(--line)}
+.tile:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.tile .ico{flex:none;width:60px;height:60px;border-radius:16px;display:grid;place-items:center;font-family:var(--display);font-size:22px;color:#fff}
+.tile .ico.sort{background:var(--asset);box-shadow:0 4px 0 var(--assetD)}
+.tile .ico.lr{background:linear-gradient(90deg,var(--dr) 50%,var(--cr) 50%);box-shadow:0 4px 0 var(--lineD)}
+.tile .txt{flex:1;min-width:0}
+.tile .lv{font-size:12px;color:var(--sub)}
+.tile h2{margin:2px 0 2px;font-size:19px}
+.tile p{margin:0;font-size:13px;color:var(--sub);line-height:1.5}
+.tile .best{text-align:center;font-size:11px;color:var(--sub)}
+.tile .best b{display:block;font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink)}
+/* 準備中のゲーム（押せない） */
+.tile.soon{opacity:.55;cursor:default;box-shadow:0 5px 0 var(--line)}
+.tile.soon:active{transform:none}
+.soonTag{flex:none;font-size:12px;color:#fff;background:var(--sub);padding:4px 10px;border-radius:999px}
+
+/* ゲーム */
+.hud{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.close{flex:none;width:36px;height:36px;border:0;background:transparent;color:var(--sub);font-size:22px;border-radius:10px}
+.tbar{flex:1;height:18px;background:var(--line);border-radius:999px;overflow:hidden;position:relative}
+.tbar i{position:absolute;inset:0;background:var(--good);border-radius:999px;transform-origin:left;transition:transform .2s linear}
+.tbar i::after{content:"";position:absolute;left:10px;right:10px;top:4px;height:4px;border-radius:4px;background:rgba(255,255,255,.35)}
+.tbar.low i{background:var(--bad)}
+.sec{font-family:var(--display);font-size:18px;min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.stats{position:relative;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.plus{position:absolute;left:2px;top:-20px;font-family:var(--display);font-size:18px;color:var(--good);opacity:0;pointer-events:none}
+.plus.on{animation:plus .6s ease-out}
+@keyframes plus{0%{opacity:0;transform:translateY(8px)}25%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+.score{font-family:var(--display);font-size:30px;line-height:1}
+.score small{font-family:"M PLUS Rounded 1c",sans-serif;font-size:13px;color:var(--sub);margin-left:4px}
+.combo{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;background:var(--card);border:2px solid var(--line);font-size:14px;color:var(--sub);transition:transform .15s}
+.combo b{font-family:var(--display);font-weight:400;font-size:18px}
+.combo.hot{color:#fff;background:var(--fire);border-color:var(--fire)}
+.combo.pop{transform:scale(1.18)}
+
+.qcard{position:relative;flex:none;min-height:170px;background:var(--card);border:2px solid var(--line);border-radius:22px;box-shadow:0 6px 0 var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px 14px;margin-bottom:22px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.qlabel{position:absolute;top:12px;left:16px;font-size:12px;color:var(--sub)}
+.qtext{font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;font-weight:800;font-size:clamp(26px,8.5vw,36px);line-height:1.4;letter-spacing:.04em;text-align:center}
+.qtext small{display:block;font-family:"M PLUS Rounded 1c",sans-serif;font-weight:800;font-size:18px;color:var(--sub);margin-top:4px}
+.qcard.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.qcard.flyL{animation:flyL .22s ease-in}
+.qcard.flyR{animation:flyR .22s ease-in}
+@keyframes flyL{50%{transform:translateX(-32px) rotate(-4deg)}}
+@keyframes flyR{50%{transform:translateX(32px) rotate(4deg)}}
+.burst{position:absolute;top:10px;right:8px;background:var(--fire);color:#fff;font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:16px;padding:6px 12px;border-radius:999px;box-shadow:0 3px 0 #C25500;opacity:0;transform:scale(.6) rotate(8deg);pointer-events:none}
+.burst.on{animation:burst .9s ease-out}
+@keyframes burst{15%{opacity:1;transform:scale(1.1) rotate(8deg)}30%{transform:scale(1) rotate(8deg)}80%{opacity:1}100%{opacity:0;transform:translateY(-12px) rotate(8deg)}}
+
+.board{display:none;flex:1;min-height:230px;max-height:330px;gap:12px}
+.board.on{display:grid;grid-template-columns:1fr 1fr}
+.col{display:flex;flex-direction:column;gap:12px;min-height:0}
+.colh{font-size:12px;color:var(--sub);text-align:center;margin-bottom:-6px}
+.ans{flex:1;font-size:21px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:18px}
+.ans[data-c="asset"]{background:var(--asset);--sh:var(--assetD);flex:1.6}
+.ans[data-c="liab"]{background:var(--liab);--sh:var(--liabD)}
+.ans[data-c="equity"]{background:var(--equity);--sh:var(--equityD)}
+.ans[data-c="rev"]{background:var(--rev);--sh:var(--revD)}
+.ans[data-c="exp"]{background:var(--exp);--sh:var(--expD)}
+.ans[data-c="dr"]{background:var(--dr);--sh:var(--drD);font-size:30px}
+.ans[data-c="cr"]{background:var(--cr);--sh:var(--crD);font-size:30px}
+.ans small{font-size:13px;opacity:.85;margin-top:4px}
+.hint{text-align:center;font-size:12px;color:var(--sub);margin-top:14px;min-height:1.2em}
+
+/* 下からせり上がる判定バナー */
+.sheet{position:fixed;left:0;right:0;bottom:0;transform:translateY(105%);transition:transform .18s ease-out;z-index:10;padding:16px 20px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:translateY(0)}
+.sheet.good{background:var(--goodBg);color:var(--good)}
+.sheet.bad{background:var(--badBg);color:var(--bad)}
+.sheet .in{max-width:408px;margin:0 auto;display:flex;gap:12px;align-items:flex-start}
+.sheet .mark{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:22px}
+.sheet.good .mark{background:var(--good)}
+.sheet.bad .mark{background:var(--bad)}
+.sheet h3{margin:0 0 2px;font-size:20px}
+.sheet p{margin:0;font-size:14px;line-height:1.55;color:var(--ink)}
+
+/* 結果 */
+.result-scroll{flex:1;overflow:auto;min-height:0;margin:0 -16px;padding:0 16px}
+.rhead{text-align:center;margin:18px 0 6px;color:var(--sub);font-size:14px}
+.rscore{text-align:center;font-family:var(--display);font-size:76px;line-height:1.05}
+.newbest{display:block;width:max-content;margin:8px auto 0;background:var(--rev);color:#fff;padding:5px 14px;border-radius:999px;font-size:14px;box-shadow:0 3px 0 var(--revD);visibility:hidden}
+.newbest.on{visibility:visible}
+/* ニックネーム */
+.nick{margin:0 0 16px}
+.nick label{display:block;font-size:13px;margin-bottom:6px}
+.nick input{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.nick input:focus{outline:none;border-color:var(--asset)}
+.nick p{font-size:11px;color:var(--sub);margin:6px 2px 0;line-height:1.5}
+
+/* ランキング */
+#menu{overflow:auto;margin:0 -16px;padding:0 16px 4px}
+.rank{margin-top:auto;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 14px 8px}
+.rank h2{font-size:16px;margin:0 0 10px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:6px}
+.tabs button{border:0;background:transparent;color:var(--sub);border-radius:9px;padding:8px;font-size:14px}
+.tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 2px 0 var(--line)}
+.rrow{display:grid;grid-template-columns:30px auto 1fr auto;align-items:center;gap:10px;padding:9px 2px;border-top:2px solid var(--line)}
+.rrow:first-of-type{border-top:0}
+.medal{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:14px;color:#fff;background:var(--lineD)}
+.medal.m1{background:#E9B308;box-shadow:0 2px 0 #B98C00}
+.medal.m2{background:#9AA6B8;box-shadow:0 2px 0 #77839A}
+.medal.m3{background:#C67B45;box-shadow:0 2px 0 #9C5B2E}
+.rs{font-family:var(--display);font-size:22px;min-width:3.2ch}
+.rt{justify-self:start;font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:12px;color:#fff;background:linear-gradient(90deg,#8B47D6,#1E7FE0);padding:3px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.rd{font-size:11px;color:var(--sub);text-align:right;line-height:1.35}
+.credit{font-size:11px;color:var(--sub);text-align:center;margin:12px 0 0;line-height:1.7}
+.rempty{font-size:13px;color:var(--sub);padding:10px 2px 12px}
+.rtitle{display:block;width:max-content;max-width:100%;margin:12px auto 0;font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:20px;color:#fff;background:linear-gradient(90deg,#8B47D6,#1E7FE0);padding:7px 20px;border-radius:999px;box-shadow:0 4px 0 #5A2E99}
+.rnext{text-align:center;font-size:13px;color:var(--sub);margin-top:10px;min-height:1.3em}
+.sech{font-size:15px;margin:8px 0 10px}
+.moment{display:block;width:62%;max-width:260px;margin:0 auto 22px}
+.shareimg{display:block;width:100%;border-radius:14px;border:2px solid var(--line);margin-bottom:10px}
+.howto{font-size:12px;color:var(--sub);line-height:1.6;margin:0 0 10px}
+.share2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.share2 .btn-ghost{padding:13px 8px;font-size:15px}
+.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 14px}
+.rstat{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 6px;text-align:center;font-size:12px;color:var(--sub)}
+.rstat b{display:block;font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink);margin-bottom:2px}
+.grid{text-align:center;font-size:18px;letter-spacing:2px;line-height:1.35;margin:4px 0 16px;word-break:break-all}
+.share{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:6px}
+.copy{padding:0 18px;font-size:15px}
+.toast{text-align:center;font-size:13px;color:var(--good);min-height:1.4em;margin-bottom:8px}
+.misses{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:4px 16px;margin-bottom:16px}
+.misses h2{font-size:15px;margin:12px 0 4px}
+.miss{border-top:2px solid var(--line);padding:10px 0;font-size:14px;line-height:1.6}
+.miss:first-of-type{border-top:0}
+.tag{display:inline-block;color:#fff;border-radius:6px;padding:0 7px;font-size:12px;margin-left:6px;vertical-align:1px}
+.empty{color:var(--sub);font-size:14px;padding:6px 0 12px}
+/* 感想を送る（試作版） */
+.feedback{text-align:center;margin:0 0 16px}
+.feedback p{font-size:12px;color:var(--sub);margin:0 0 8px}
+.feedback a{text-decoration:none}
+.rbtns{display:grid;gap:12px;padding-top:12px}
+
+/* サウンド切り替え */
+.snd{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:14px}
+.snd.mini{flex:none;padding:4px 8px;font-size:16px;border-radius:10px}
+.hud{position:relative}
+.addt{position:absolute;right:44px;top:-16px;font-family:var(--display);font-size:15px;color:var(--good);opacity:0;pointer-events:none}
+.addt.on{animation:plus .9s ease-out}
+
+/* フィーバー */
+.feverTag{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:13px;color:#fff;background:linear-gradient(90deg,#FF5E7E,#FFB020);padding:3px 12px;border-radius:999px;display:none;white-space:nowrap}
+body.fever .feverTag{display:block;animation:pulse .45s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.1)}}
+body.fever .qcard{border-color:#FFB020;box-shadow:0 6px 0 #E08A00}
+body.fever .tbar i{background:linear-gradient(90deg,#FF5E7E,#FFB020,#22C55E,#1E7FE0,#8B47D6,#FF5E7E);background-size:200% 100%;animation:rainbow 1s linear infinite}
+@keyframes rainbow{to{background-position:200% 0}}
+body.fever{background:radial-gradient(circle at 50% 0%,rgba(255,176,32,.25),transparent 65%) var(--bg)}
+body.fever .plus{color:#E08A00}
+
+/* 正解の緑フラッシュ */
+.qcard::before{content:"";position:absolute;inset:-2px;border-radius:22px;border:3px solid var(--good);opacity:0;pointer-events:none}
+.qcard.ok::before{animation:okf .35s ease-out}
+@keyframes okf{0%{opacity:1}100%{opacity:0}}
+
+/* コンボ演出 */
+.qcard::after{content:"";position:absolute;inset:-2px;border-radius:22px;pointer-events:none;opacity:0}
+.qcard.glow::after{animation:glow .55s ease-out}
+@keyframes glow{0%{opacity:1;box-shadow:0 0 0 3px var(--fire)}100%{opacity:0;box-shadow:0 0 0 18px rgba(255,122,26,0)}}
+.flash{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,170,60,.45),transparent 70%);pointer-events:none;opacity:0;z-index:19}
+.flash.on{animation:flash .7s ease-out}
+@keyframes flash{20%{opacity:1}100%{opacity:0}}
+.mega{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:20}
+.mega .txt{font-family:"Mochiy Pop One","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;letter-spacing:.03em;font-size:clamp(40px,13vw,64px);line-height:1.15;text-align:center;color:var(--fire);-webkit-text-stroke:2px #fff;paint-order:stroke fill;text-shadow:0 5px 0 #C25500,0 0 28px rgba(255,122,26,.6);opacity:0;transform:rotate(-5deg)}
+.mega .txt.long{font-size:clamp(32px,10vw,48px)}
+.mega .txt small{display:block;font-size:.55em;color:#fff;-webkit-text-stroke:0;text-shadow:0 3px 0 #C25500}
+.mega.on .txt{animation:mega 1.15s cubic-bezier(.2,1.4,.4,1)}
+@keyframes mega{0%{opacity:0;transform:scale(.3) rotate(-12deg)}18%{opacity:1;transform:scale(1.18) rotate(-5deg)}32%{transform:scale(1) rotate(-5deg)}78%{opacity:1}100%{opacity:0;transform:translateY(-30px) rotate(-5deg)}}
+.conf{position:fixed;width:9px;height:14px;border-radius:2px;pointer-events:none;z-index:21}
+/* 開始前のカウントダウン */
+.count{position:fixed;inset:0;display:none;place-items:center;pointer-events:none;z-index:22}
+.count.on{display:grid}
+.count span{font-family:var(--display);font-size:clamp(96px,30vw,140px);line-height:1;color:var(--fire);-webkit-text-stroke:3px #fff;paint-order:stroke fill;text-shadow:0 6px 0 #C25500;opacity:0}
+.count span.go{font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:clamp(48px,15vw,72px)}
+.count span.pop{animation:cpop .55s ease-out}
+@keyframes cpop{0%{opacity:0;transform:scale(1.8)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.92)}}
+
+/* マスコット「電卓ロボ」：顔は液晶に表示。data-face で表情、.talk で口パク、.hop で跳ねる */
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.botwrap{display:flex;flex-direction:column;align-items:center;flex:none}
+.botname{margin-top:2px;font-family:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;font-size:11px;color:#fff;background:var(--ink);padding:2px 9px;border-radius:999px}
+.bot{display:inline-block;flex:none;width:70px;height:77px;line-height:0}
+.bot svg{width:100%;height:100%;overflow:visible}
+/* ゲーム中は問題カードの上の縁に乗せる（縦の場所をあまり取らない） */
+.bot.sm{position:absolute;z-index:2;left:28%;top:-66px;width:100px;height:110px;margin-left:-50px}
+#game .stats{margin-bottom:64px}
+/* ロボと重ならないようラベルは左下へ（問題文の位置は元のまま） */
+#game .qlabel{top:auto;bottom:10px}
+/* 掛け声はロボの右横に吹き出しのように出す */
+#game .burst{left:calc(28% + 54px);right:auto;top:-46px;max-width:calc(72% - 62px);width:max-content;white-space:normal;line-height:1.25;text-align:center}
+@media (max-width:400px){#game .burst,#game .burst.l1,#game .burst.l2,#game .burst.l3{font-size:14px;padding:5px 10px}}
+.bot.lg{display:block;width:92px;height:101px;margin:14px auto 0}
+.bot .f{display:none}
+.bot[data-face="normal"] .f-normal,.bot[data-face="happy"] .f-happy,.bot[data-face="excited"] .f-excited,.bot[data-face="sad"] .f-sad{display:inline}
+.bot .eyes{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.bot .mouth{transform-box:fill-box;transform-origin:center top}
+.bot.talk .mouth{animation:talk .16s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scaleY(1)}to{transform:scaleY(.35)}}
+.bot.hop svg{animation:hop .35s ease-out}
+@keyframes hop{40%{transform:translateY(-7px)}}
+.bot.shiver svg{animation:shiver .3s}
+@keyframes shiver{25%{transform:translateX(-3px) rotate(-4deg)}75%{transform:translateX(3px) rotate(4deg)}}
+body.fever .bot.sm svg{animation:feverbot .4s ease-in-out infinite alternate}
+@keyframes feverbot{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-4px) rotate(4deg)}}
+
+/* 犬版：写真と4択ボタン */
+#game .qcard{padding:8px 8px 26px;min-height:0}
+.qimg{display:block;width:100%;height:clamp(150px,30vh,230px);object-fit:cover;border-radius:16px;background:var(--line)}
+#game .qtext{position:absolute;left:0;right:0;top:40%;opacity:0;pointer-events:none}
+.ans.d0{background:var(--asset);--sh:var(--assetD)}.ans.d1{background:var(--liab);--sh:var(--liabD)}
+.ans.d2{background:var(--equity);--sh:var(--equityD)}.ans.d3{background:var(--exp);--sh:var(--expD)}
+#board-sort .ans{font-size:16px;line-height:1.3;padding:6px;word-break:keep-all;overflow-wrap:anywhere}
+
+/* 手応え：コンボの掛け声は段階ごとに色と大きさが強くなる */
+.burst.l1{background:#FF5E3A;box-shadow:0 3px 0 #B8331A;font-size:17px}
+.burst.l2{background:linear-gradient(90deg,#8B47D6,#FF5E7E);box-shadow:0 3px 0 #5A2E99;font-size:18px}
+.burst.l3{background:linear-gradient(90deg,#FF5E7E,#FFB020,#22C55E,#1E7FE0,#8B47D6);box-shadow:0 3px 0 #5A2E99;font-size:19px}
+/* 押した瞬間につぶれて戻るボタン */
+.ans.squish{animation:squish .22s ease-out}
+@keyframes squish{0%{transform:translateY(3px) scale(1.06,.9)}55%{transform:translateY(0) scale(.97,1.04)}100%{transform:none}}
+/* 答えが飛び込んだときに弾むボタン */
+.ans.boing{animation:boing .34s cubic-bezier(.3,1.6,.5,1)}
+@keyframes boing{0%{transform:scale(1)}35%{transform:scale(1.09,.93)}70%{transform:scale(.98,1.03)}100%{transform:none}}
+/* カードからボタンへ飛ぶ答え・弾ける粒 */
+.fly{position:fixed;z-index:15;pointer-events:none;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:6px 12px;font-size:18px;font-weight:800;white-space:nowrap;box-shadow:0 4px 0 var(--line)}
+.bit{position:fixed;z-index:16;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;pointer-events:none}
+/* コンボが切れたときの余韻 */
+.cend{position:absolute;right:2px;top:40px;font-size:13px;color:var(--sub);white-space:nowrap;opacity:0;pointer-events:none}
+.cend.on{animation:cend 1.3s ease-out}
+@keyframes cend{0%{opacity:0;transform:scale(1.25)}15%{opacity:1;transform:none}70%{opacity:1}100%{opacity:0;transform:translateY(12px)}}
+@keyframes fadeOnly{20%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
+@media (prefers-reduced-motion: reduce){
+  .mega.on .txt{animation:fadeOnly 1.1s;transform:none}
+  body.fever .feverTag,body.fever .tbar i{animation:none}
+  .qcard.glow::after,.flash.on{animation:none}
+  .qcard.shake,.qcard.flyL,.qcard.flyR,.burst.on{animation:none}
+  .ans.squish,.ans.boing,.bot .eyes,.bot.talk .mouth,.bot.hop svg,.bot.shiver svg,body.fever .bot.sm svg{animation:none}
+  .cend.on{animation:fadeOnly 1.3s}
+  .count span.pop{animation:fadeOnly .55s;transform:none}
+  .sheet,.tbar i,.combo{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <section class="screen on" id="menu">
+    <div class="inapp" id="inapp" hidden>
+      <p>Xアプリの中で開いています。<br>メニュー（「…」や「⋮」）から<b>「ブラウザで開く」</b>を選ぶと、より快適に遊べます。</p>
+      <button id="inappClose" aria-label="閉じる">✕</button>
+    </div>
+    <div class="topbar">
+      <span class="kicker">じっくり見てたら間に合わない。<br>一瞬で犬種を見抜け！</span>
+      <button class="snd" id="sndMenu">🔊 サウンドON</button>
+    </div>
+    <div class="brandrow"><h1 class="brand">犬種ミニゲーム</h1><span class="botwrap"><span class="bot" id="botTop" data-face="normal"></span><span class="botname">ポチ</span></span></div>
+    <p class="lead">1回60秒。写真の犬の犬種を、4択でどんどん当てよう。</p>
+    <button class="tile" data-mode="sort">
+      <span class="ico sort">🐶</span>
+      <span class="txt"><span class="lv">ステップ1</span><h2>犬種ジャッジ</h2><p>写真の犬の犬種を4択で当てる</p></span>
+      <span class="best">ベスト<b id="best-sort">0</b></span>
+    </button>
+    <div class="nick">
+      <label for="nick">ニックネーム（任意・本名は入れないでください）</label>
+      <input id="nick" maxlength="12" placeholder="例：かもみーる" autocomplete="off">
+      <p>遊んだスコアとニックネームは、作者がランキング集計のために記録します。</p>
+    </div>
+    <div class="rank">
+      <h2>過去のスコアランキング</h2>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-rank="sort" aria-selected="true">犬種ジャッジ</button>
+        <button role="tab" data-rank="lr" aria-selected="false">左右ジャッジ</button>
+      </div>
+      <div id="rankList"></div>
+    </div>
+    <p class="credit">音が出ないときは、マナーモード（消音）を解除してください<br>写真：Dog API（dog.ceo）</p>
+  </section>
+
+  <section class="screen" id="game">
+    <div class="hud">
+      <button class="close" id="quit" aria-label="やめる">✕</button>
+      <div class="tbar" id="tbar"><i id="tfill"></i></div>
+      <div class="sec" id="sec">60</div>
+      <span class="addt" id="addt">+3秒</span>
+      <button class="snd mini" id="sndGame" aria-label="サウンド切り替え">🔊</button>
+    </div>
+    <div class="stats">
+      <div class="score" id="score">0<small>点</small></div>
+      <span class="plus" id="plus"></span>
+      <div class="combo" id="comboBox">🔥<b id="combo">0</b>コンボ</div>
+      <span class="cend" id="cend"></span>
+    </div>
+    <div class="qcard" id="qcard">
+      <span class="bot sm" id="botGame" data-face="normal"></span>
+      <span class="qlabel" id="qlabel">勘定科目</span>
+      <img class="qimg" id="qimg" alt="犬の写真"><div class="qtext" id="qtext" aria-live="polite"></div>
+      <div class="burst" id="burst"></div>
+      <div class="feverTag">フィーバー 得点×2</div>
+    </div>
+
+    <div class="board" id="board-sort">
+      <div class="col"><button class="ans chunky d0" data-c=""></button><button class="ans chunky d2" data-c=""></button></div>
+      <div class="col"><button class="ans chunky d1" data-c=""></button><button class="ans chunky d3" data-c=""></button></div>
+    </div>
+    <div class="board" id="board-lr">
+      <div class="col"><button class="ans chunky" data-c="dr">借方<small>← 左</small></button></div>
+      <div class="col"><button class="ans chunky" data-c="cr">貸方<small>右 →</small></button></div>
+    </div>
+    <div class="hint" id="hint"></div>
+  </section>
+
+  <section class="screen" id="result">
+    <div class="result-scroll">
+      <span class="bot lg" id="botRes" data-face="happy"></span>
+      <div class="rhead" id="rname"></div>
+      <div class="rscore" id="rscore">0</div>
+      <div class="rtitle" id="rtitle"></div>
+      <div class="rnext" id="rnext"></div>
+      <span class="newbest" id="newbest">ベストスコア更新</span>
+      <div class="rstats">
+        <div class="rstat"><b id="rcorrect">0</b>正解数</div>
+        <div class="rstat"><b id="rrate">0%</b>正答率</div>
+        <div class="rstat"><b id="rmax">0</b>最大コンボ</div>
+      </div>
+      <div id="momentWrap">
+        <h2 class="sech">最高コンボの瞬間</h2>
+        <img class="moment" id="momentImg" alt="最高コンボを達成したときのゲーム画面">
+      </div>
+      <h2 class="sech">シェア用画像</h2>
+      <img class="shareimg" id="shareImg" alt="スコアと称号をまとめたシェア用画像">
+      <p class="howto">画像を保存してから「Xでスコアをポスト」を押し、投稿画面で画像を添付してください。保存ボタンが使えない場合は、画像を長押しして保存できます。</p>
+      <div class="share2">
+        <button class="btn-ghost" id="saveImg">画像を保存</button>
+        <button class="btn-ghost" id="shareImgBtn">画像をシェア</button>
+      </div>
+      <div class="share">
+        <a class="btn chunky btn-main btn-x" id="shareX" href="#" target="_blank" rel="noopener">𝕏 でスコアをポスト</a>
+        <button class="btn-ghost copy" id="copy">コピー</button>
+      </div>
+      <div class="toast" id="toast"></div>
+      <div class="misses" id="misses"></div>
+    </div>
+    <div class="rbtns">
+      <button class="chunky btn-main" id="again">もう一度</button>
+      <button class="btn-ghost" id="home">メニューに戻る</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="flash" id="flash"></div>
+<div class="mega" id="mega"><div class="txt" id="megaTxt"></div></div>
+<div class="count" id="count"><span id="countTxt"></span></div>
+<div class="sheet" id="sheet" aria-live="assertive">
+  <div class="in"><div class="mark" id="smark"></div><div><h3 id="stitle"></h3><p id="sbody"></p></div></div>
+</div>
+
+<script>
+const ACCOUNTS = [
+  ["現金","asset","手元にあるお金。他人振出の小切手も現金で処理します。"],
+  ["当座預金","asset","小切手を振り出せる銀行預金。"],
+  ["普通預金","asset","銀行に預けているお金なので資産です。"],
+  ["定期預金","asset","満期まで引き出せない預金ですが、資産です。"],
+  ["小口現金","asset","日々の少額支払いのために用意した現金です。"],
+  ["売掛金","asset","商品を掛けで売ったときの、後で代金を受け取る権利です。"],
+  ["受取手形","asset","手形で代金を受け取る権利なので資産です。"],
+  ["電子記録債権","asset","電子的に記録された、代金を受け取る権利です。"],
+  ["クレジット売掛金","asset","カード払いで売った代金を、カード会社から受け取る権利です。"],
+  ["繰越商品","asset","期末に売れ残っている商品。決算整理で出てきます。"],
+  ["前払金","asset","商品代金の手付金を先に払ったもの。商品を受け取る権利です。"],
+  ["貸付金","asset","お金を貸して、後で返してもらう権利です。"],
+  ["手形貸付金","asset","手形を受け取ってお金を貸したときの権利です。"],
+  ["未収入金","asset","商品以外のもの（備品など）を売った代金を後で受け取る権利です。"],
+  ["立替金","asset","従業員などの代わりに払ったお金。後で返してもらえます。"],
+  ["仮払金","asset","内容や金額が確定していない支払い。確定するまで資産で処理します。"],
+  ["前払費用","asset","来期分の費用を先払いしたもの。サービスを受ける権利です。"],
+  ["未収収益","asset","今期分の収益なのにまだ受け取っていないもの。受け取る権利です。"],
+  ["建物","asset","事業で使う建物は固定資産です。"],
+  ["備品","asset","パソコンや机など、長く使う物品です。"],
+  ["車両運搬具","asset","営業車やトラックなどの固定資産です。"],
+  ["土地","asset","土地は減価償却しない固定資産です。"],
+  ["差入保証金","asset","敷金など、後で返ってくる保証金です。"],
+  ["仮払消費税","asset","仕入時に払った消費税。後で差し引ける権利なので資産です。"],
+  ["仮払法人税等","asset","法人税の中間納付額。確定するまで資産で処理します。"],
+
+  ["買掛金","liab","商品を掛けで仕入れたときの、後で代金を払う義務です。"],
+  ["支払手形","liab","手形で代金を支払う義務なので負債です。"],
+  ["電子記録債務","liab","電子的に記録された、代金を支払う義務です。"],
+  ["前受金","liab","手付金を先に受け取ったもの。商品を渡す義務です。"],
+  ["借入金","liab","借りたお金を返す義務です。"],
+  ["手形借入金","liab","手形を差し入れてお金を借りたときの返済義務です。"],
+  ["未払金","liab","商品以外のものを買って、後で代金を払う義務です。"],
+  ["預り金","liab","従業員の源泉所得税などを一時的に預かったもの。後で納める義務です。"],
+  ["仮受金","liab","内容が不明な入金。確定するまで負債で処理します。"],
+  ["未払費用","liab","今期分の費用なのにまだ払っていないもの。払う義務です。"],
+  ["前受収益","liab","来期分の収益を先に受け取ったもの。サービスを提供する義務です。"],
+  ["仮受消費税","liab","売上時に預かった消費税。後で納める義務なので負債です。"],
+  ["未払消費税","liab","決算で確定した、まだ納めていない消費税です。"],
+  ["未払法人税等","liab","決算で確定した、まだ納めていない法人税等です。"],
+  ["未払配当金","liab","株主総会で決まった、まだ払っていない配当です。"],
+
+  ["資本金","equity","株主が出資したお金。純資産の代表です。"],
+  ["繰越利益剰余金","equity","会社がこれまでに稼いで貯めた利益です。"],
+  ["利益準備金","equity","配当のときに法律で積み立てが必要な準備金です。"],
+
+  ["売上","rev","商品を売って得た収益です。"],
+  ["受取利息","rev","貸付金や預金から受け取る利息です。"],
+  ["受取手数料","rev","仲介などで受け取った手数料です。"],
+  ["受取家賃","rev","建物を貸して受け取る家賃です。"],
+  ["受取地代","rev","土地を貸して受け取る地代です。"],
+  ["雑益","rev","現金過不足の原因不明分など、少額の収益です。"],
+  ["固定資産売却益","rev","固定資産を帳簿価額より高く売れたときの利益です。"],
+  ["償却債権取立益","rev","前期以前に貸倒れ処理した債権を回収できたときの収益です。"],
+  ["貸倒引当金戻入","rev","貸倒引当金の残高が多すぎたときに戻し入れる収益です。"],
+
+  ["仕入","exp","商品を仕入れたときの費用です。"],
+  ["給料","exp","従業員に払う給料です。"],
+  ["法定福利費","exp","社会保険料の会社負担分です。"],
+  ["支払家賃","exp","建物を借りて払う家賃です。"],
+  ["支払地代","exp","土地を借りて払う地代です。"],
+  ["水道光熱費","exp","電気・ガス・水道の料金です。"],
+  ["通信費","exp","電話代、切手代、インターネット料金などです。"],
+  ["旅費交通費","exp","電車代、タクシー代、出張費などです。"],
+  ["消耗品費","exp","文房具やコピー用紙などの消耗品です。"],
+  ["広告宣伝費","exp","チラシや広告の費用です。"],
+  ["保険料","exp","火災保険などの保険料です。"],
+  ["租税公課","exp","固定資産税や印紙税など。法人税は含みません。"],
+  ["支払手数料","exp","振込手数料や仲介手数料を払ったときの費用です。"],
+  ["支払利息","exp","借入金にかかる利息です。"],
+  ["減価償却費","exp","固定資産の価値の減少分を費用にしたものです。"],
+  ["貸倒損失","exp","売掛金などが回収できなくなったときの損失です。"],
+  ["貸倒引当金繰入","exp","将来の貸倒れに備えて見積もった費用です。"],
+  ["修繕費","exp","建物や備品の修理代です。"],
+  ["発送費","exp","商品を送るときの送料です。"],
+  ["雑損","exp","現金過不足の原因不明分など、少額の損失です。"],
+  ["固定資産売却損","exp","固定資産を帳簿価額より安く売ったときの損失です。"],
+  ["法人税、住民税及び事業税","exp","会社の利益にかかる税金。費用として処理します。"]
+];
+const DOGS = [["トイ・プードル","poodle/toy","くるくるの巻き毛。抜け毛が少なく、とても賢い犬種です。"],["チワワ","chihuahua","メキシコ原産。世界でいちばん小さいクラスの犬種です。"],["柴犬","shiba","日本原産。くるんと巻いた尾と立ち耳が特徴です。"],["ダックスフンド","dachshund","ドイツ原産。胴長短足で、もとはアナグマ猟の犬です。"],["ポメラニアン","pomeranian","ふわふわの毛と、キツネのような顔が特徴の小型犬です。"],["ヨークシャー・テリア","terrier/yorkshire","イギリス原産。長くて絹のような毛が特徴です。"],["ミニチュア・シュナウザー","schnauzer/miniature","ドイツ原産。立派な眉毛とひげが特徴です。"],["フレンチ・ブルドッグ","bulldog/french","コウモリのような立ち耳と、つぶれた鼻が特徴です。"],["シー・ズー","shihtzu","中国原産。長い毛と、鼻の短い顔が特徴です。"],["マルチーズ","maltese","真っ白で長い毛が特徴の小型犬です。"],["パピヨン","papillon","蝶（パピヨン）の羽のような大きな耳が名前の由来です。"],["ゴールデン・レトリバー","retriever/golden","金色の長い毛。穏やかな性格で、盲導犬でも活躍します。"],["ラブラドール・レトリバー","labrador","短い毛で、黒・黄・チョコの毛色があります。盲導犬で有名です。"],["コーギー","pembroke","胴長短足で、丸いお尻がかわいい牧羊犬です。"],["パグ","pug","しわしわの顔と、くるんと巻いた尾が特徴です。"],["ビーグル","beagle","垂れ耳と白・黒・茶の毛色。鼻がよくきく猟犬です。"],["ボーダー・コリー","collie/border","とても賢い牧羊犬。黒と白の毛色が多いです。"],["シベリアン・ハスキー","husky","そりを引く犬。オオカミのような顔で、青い目のことも。"],["秋田犬","akita","日本原産の大型犬。忠犬ハチ公で有名です。"],["バーニーズ・マウンテン・ドッグ","mountain/bernese","スイス原産。黒・白・茶の3色の長い毛が特徴です。"],["サモエド","samoyed","真っ白な毛と、口角の上がった「サモエドスマイル」が特徴です。"],["ダルメシアン","dalmatian","白地に黒の斑点模様が特徴です。"],["ジャーマン・シェパード","germanshepherd","ドイツ原産。警察犬として有名です。"],["ボストン・テリア","bulldog/boston","白と黒のタキシードのような模様。アメリカ生まれです。"],["チャウ・チャウ","chow","ライオンのようなたてがみと、青黒い舌が特徴です。"],["セント・バーナード","stbernard","スイスの山岳救助犬として有名な超大型犬です。"],["シェットランド・シープドッグ","sheepdog/shetland","コリーを小さくしたような牧羊犬。愛称はシェルティーです。"],["ジャック・ラッセル・テリア","terrier/russell","イギリス原産。元気いっぱいの小型テリアです。"]];
+const dogPhotos = [];
+let dogNames = DOGS.map(d=>d[0]);
+(async function loadDogs(){
+  try{
+    const all=(await (await fetch("https://dog.ceo/api/breeds/list/all")).json()).message;
+    const has=p=>{const [b,sub]=p.split("/");return all[b]&&(!sub||all[b].includes(sub))};
+    const ok=DOGS.filter(d=>has(d[1])); dogNames=ok.map(d=>d[0]);
+    await Promise.all(ok.map(async ([name,p,ex])=>{
+      const urls=(await (await fetch("https://dog.ceo/api/breed/"+p+"/images/random/3")).json()).message||[];
+      urls.forEach(u=>{const im=new Image();im.onload=()=>dogPhotos.push({name,ex,url:u});im.src=u;});
+    }));
+  }catch(e){}
+})();
+const CAT = {asset:"資産",liab:"負債",equity:"純資産",rev:"収益",exp:"費用"};
+const SIDE = {dr:"借方",cr:"貸方"};
+// ===== 設定（公開時にここだけ書き換えてください） =====
+// SCORE_ENDPOINT: Google Apps Script の「ウェブアプリのURL」（空ならスコアは送信しません）
+const SCORE_ENDPOINT = ""; const _unused_endpoint = "https://script.google.com/macros/s/AKfycbzoQwYt-XehSVYMJDGutvTQYaXrCroppcH9hYjWQmko9m21NWFZYtlou1XsdbxS8cES/exec";
+// SHARE_URL: 公開したゲームのURL（空なら今開いているページのURLを使います）
+const SHARE_URL = location.origin + location.pathname;
+// PC内で動かしているか（localhost やファイルを直接開いた場合）
+const IS_LOCAL = location.protocol === "file:" || ["localhost","127.0.0.1","[::1]"].includes(location.hostname);
+// =========================================
+
+function buildLR(){
+  const out=[];
+  const home = c => (c==="asset"||c==="exp") ? "dr" : "cr";
+  const flip = s => s==="dr" ? "cr" : "dr";
+  ACCOUNTS.forEach(([n,c])=>{
+    const h = home(c);
+    if(c==="rev"||c==="exp"){
+      out.push({key:n+"発生",main:n,sub:"が発生した",q:n+"<small>が発生した</small>",plain:n+"が発生した",ans:h,ex:n+"は"+CAT[c]+"。"+CAT[c]+"の発生は"+SIDE[h]+"です。"});
+    }else{
+      out.push({key:n+"増",main:n,sub:"が増えた",q:n+"<small>が増えた</small>",plain:n+"が増えた",ans:h,ex:n+"は"+CAT[c]+"。"+CAT[c]+"が増えたら"+SIDE[h]+"です。"});
+      out.push({key:n+"減",main:n,sub:"が減った",q:n+"<small>が減った</small>",plain:n+"が減った",ans:flip(h),ex:n+"は"+CAT[c]+"。"+CAT[c]+"が減ったら"+SIDE[flip(h)]+"です。"});
+    }
+  });
+  out.push({key:"売上取消",main:"売上",sub:"を取り消した（返品）",q:"売上<small>を取り消した（返品）</small>",plain:"売上を取り消した（返品）",ans:"dr",ex:"売上の取消は収益の減少。収益が減ったら借方です。"});
+  out.push({key:"仕入取消",main:"仕入",sub:"を取り消した（返品）",q:"仕入<small>を取り消した（返品）</small>",plain:"仕入を取り消した（返品）",ans:"cr",ex:"仕入の取消は費用の減少。費用が減ったら貸方です。"});
+  return out;
+}
+
+const MODES = {
+  sort:{title:"犬種ジャッジ",label:"この犬は？",board:"board-sort",hint:"",
+    items:()=>dogPhotos.map((p,i)=>({key:p.url,main:p.name,sub:"",q:p.name,plain:p.name,ans:p.name,ex:p.ex,img:p.url})),
+    okText:it=>it.plain+"です。",
+    name:a=>a,
+    // 毎問：写真を出し、正解＋ほかの犬種3つを4つのボタンに並べる
+    prep:it=>{
+      $("qimg").src=it.img;
+      const others=shuffle(dogNames.filter(n=>n!==it.ans)).slice(0,3);
+      it.choices=shuffle([it.ans,...others]);
+      document.querySelectorAll("#board-sort .ans").forEach((b,i)=>{b.textContent=it.choices[i];b.dataset.c=it.choices[i];});
+    }},
+  lr:{title:"左右ジャッジ",label:"取引の要素",board:"board-lr",hint:"カードを左右にスワイプしてもOK",
+    items:buildLR,
+    okText:it=>it.plain+" → "+SIDE[it.ans],
+    name:a=>SIDE[a]}
+};
+const TAGCOL = {asset:"var(--asset)",liab:"var(--liab)",equity:"var(--equity)",rev:"var(--rev)",exp:"var(--exp)",dr:"var(--dr)",cr:"var(--cr)"};
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){k="dog_"+k;try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){k="dog_"+k;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+(function(){const old=store.get("best",null); if(old!==null && store.get("best_sort",null)===null) store.set("best_sort",old);})();
+// ランキング追加前のベストスコアを履歴に1回だけ取り込む
+["sort","lr"].forEach(m=>{
+  if(store.get("hist_mig_"+m,false)) return;
+  const b=store.get("best_"+m,0), h=store.get("hist_"+m,[]);
+  if(b>0 && !h.some(r=>r.s===b)){h.push({s:b,c:null,d:"以前",t:0});h.sort((x,y)=>y.s-x.s||x.t-y.t);store.set("hist_"+m,h.slice(0,10));}
+  store.set("hist_mig_"+m,true);
+});
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const DURATION=60;
+let mode="sort",M=MODES.sort,pool=[],deck=[],cur=null,score=0,combo=0,maxCombo=0,correct=0,total=0,misses=[],marks=[],endAt=0,timer=null,locked=true,ended=false;
+let snap=null,shareCanvas=null,dlNS=null;
+let fever=false,feverUntil=0,feverCount=0,soundOn=store.get("sound",true),actx=null;
+
+function dayStr(o=0){const d=new Date();d.setDate(d.getDate()+o);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function refreshMenu(){
+  renderRank();
+  $("best-sort").textContent=store.get("best_sort",0);
+  if($("best-lr")) $("best-lr").textContent=store.get("best_lr",0);
+  const s=store.get("streak",{last:null,count:0});
+  if($("streak")) $("streak").textContent=(s.last===dayStr()||s.last===dayStr(-1))?s.count:0;
+}
+function bumpStreak(){
+  const s=store.get("streak",{last:null,count:0});
+  if(s.last===dayStr()) return;
+  s.count=(s.last===dayStr(-1))?s.count+1:1; s.last=dayStr(); store.set("streak",s);
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id))}
+function restart(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+
+function sheet(kind,title,body){
+  const s=$("sheet");
+  s.className="sheet "+kind+" on";
+  $("smark").textContent = kind==="good"?"✓":"✕";
+  $("stitle").textContent=title; $("sbody").textContent=body;
+}
+function hideSheet(){$("sheet").classList.remove("on")}
+
+function next(){
+  if(ended) return;
+  if(deck.length===0) deck=shuffle(pool.slice());
+  cur=deck.pop();
+  $("qtext").innerHTML=cur.q; $("qtext").style.visibility="";
+  $("qcard").classList.remove("flyL","flyR","shake");
+  if(M.prep) M.prep(cur);
+  hideSheet();
+  locked=false;
+}
+
+// 3・2・1・スタート！の間隔(ms)
+const CD_STEP=550;
+let cdTimers=[];
+function clearCountdown(){ cdTimers.forEach(clearTimeout); cdTimers=[]; $("count").classList.remove("on"); }
+function start(m){
+  if(m==="sort"&&dogPhotos.length<8){ alert("写真を読み込み中です。少し待ってからもう一度押してください。"); return; }
+  mode=m;M=MODES[m];pool=M.items();
+  score=0;combo=0;maxCombo=0;correct=0;total=0;misses=[];marks=[];ended=false;
+  endFever();feverCount=0;snap=null;hush();audio();loadVoices();
+  deck=shuffle(pool.slice());
+  $("qlabel").textContent=M.label; $("hint").textContent=M.hint;
+  document.querySelectorAll(".board").forEach(b=>b.classList.toggle("on",b.id===M.board));
+  updateStats(); hideSheet();
+  // カウントダウン中は問題を出さず、時間も止めておく
+  clearCountdown(); clearInterval(timer); locked=true; cur=null; $("qtext").innerHTML="";
+  $("sec").textContent=DURATION; $("tfill").style.transform="scaleX(1)"; $("tbar").classList.remove("low");
+  botFace("normal");
+  show("game"); track("start-"+m);
+  $("count").classList.add("on");
+  ["3","2","1","スタート！"].forEach((t,i)=>cdTimers.push(setTimeout(()=>{
+    const c=$("countTxt"); c.textContent=t; c.className=i===3?"go":""; restart(c,"pop");
+    if(i<3) SFX.tick(); else { botFace("happy",600); botHop(); }
+  },i*CD_STEP)));
+  // 「よーい、スタート！」の「スタート」が画面の「スタート！」に重なるように鳴らす
+  const vd=voiceBuf.start?voiceBuf.start.duration*1000:1300;
+  cdTimers.push(setTimeout(()=>say("start"),Math.max(0,3*CD_STEP-(vd-600))));
+  cdTimers.push(setTimeout(()=>{
+    $("count").classList.remove("on"); next();
+    endAt=Date.now()+DURATION*1000; timer=setInterval(tick,100); tick();
+  },3*CD_STEP+300));
+}
+function tick(){
+  const left=Math.max(0,(endAt-Date.now())/1000);
+  $("sec").textContent=Math.ceil(left);
+  $("tfill").style.transform="scaleX("+Math.min(1,left/DURATION)+")";
+  if(fever&&Date.now()>feverUntil) endFever();
+  $("tbar").classList.toggle("low",left<=10);
+  if(left<=0){clearInterval(timer);finish()}
+}
+function updateStats(){
+  $("score").innerHTML=score+"<small>点</small>";
+  $("combo").textContent=combo;
+  $("comboBox").classList.toggle("hot",combo>=3);
+}
+
+function answer(c){
+  if(locked||!cur||ended) return;
+  total++;
+  const card=$("qcard");
+  const btn=document.querySelector("#"+M.board+' .ans[data-c="'+c+'"]');
+  if(btn){ btn.classList.remove("boing"); restart(btn,"squish"); }
+  if(c===cur.ans){
+    combo++;correct++;maxCombo=Math.max(maxCombo,combo);marks.push(1);
+    const gain=(10+Math.min(combo-1,10)*2)*(fever?2:1); score+=gain;
+    SFX.ok(combo);
+    if(!flyTo(btn,combo) && mode==="lr") restart(card,c==="dr"?"flyL":"flyR");
+    restart($("comboBox"),"pop"); setTimeout(()=>$("comboBox").classList.remove("pop"),150);
+    comboFx(combo);
+    botFace(combo>=5||fever?"excited":"happy",combo>=5||fever?700:500); botHop();
+    if(combo===maxCombo) snap={main:cur.main||cur.plain,sub:cur.sub||"",combo,score,fever,choices:cur.choices};
+    restart(card,"ok");
+    $("plus").textContent="+"+gain; restart($("plus"),"on");
+    locked=true; setTimeout(next,260);
+  }else{
+    if(combo>=3){ $("cend").textContent=combo+"コンボでストップ"; restart($("cend"),"on"); }
+    say(combo>=5?"miss2":["miss1","miss2","miss3"][Math.floor(Math.random()*3)]);
+    combo=0;marks.push(0);endFever();SFX.ng();
+    botFace("sad",1500); botHop("shiver");
+    if(!misses.find(m=>m.key===cur.key)) misses.push(cur);
+    restart(card,"shake");
+    if(navigator.vibrate) try{navigator.vibrate(60)}catch(e){}
+    sheet("bad","正解は "+M.name(cur.ans),cur.ex);
+    locked=true; setTimeout(next,1500);
+  }
+  updateStats();
+}
+
+// サウンド（音声ファイルなしでブラウザ内で生成）
+function audio(){
+  if(!soundOn) return null;
+  try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended"){ const r=actx.resume(); if(r&&r.catch) r.catch(()=>{}); } }catch(e){return null}
+  return actx;
+}
+function tone(freq,dur,type,vol,delay,glide){
+  const a=audio(); if(!a) return;
+  try{
+    const t=a.currentTime+(delay||0), o=a.createOscillator(), g=a.createGain();
+    const lp=a.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=1500; lp.Q.value=0.3;
+    o.type=type||"sine"; o.frequency.setValueAtTime(freq,t);
+    if(glide) o.frequency.exponentialRampToValueAtTime(glide,t+dur);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||.14,t+.035); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(lp); lp.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+.05);
+  }catch(e){}
+}
+// 音は低め・丸い音色・余韻長め。コンボでの音程上昇は最大1オクターブまで
+const STEPS=[0,2,4,7,9,12];
+const SFX={
+  ok(n){ const f=329.63*Math.pow(2,STEPS[Math.min(Math.floor((n-1)/2),STEPS.length-1)]/12); tone(f,.2,"sine",.11); tone(f*1.189,.38,"sine",.13,.075); tone(f*1.189/2,.32,"sine",.045,.075); },
+  ng(){ tone(175,.42,"sine",.11,0,130); },
+  tick(){ tone(392,.18,"sine",.08); },
+  // 答えがボタンに飛び込んだときの「ぽよん」。低めで小さく、コンボで少しだけ上がる
+  pop(n){ const f=196*Math.pow(2,Math.min(n,12)/24); tone(f,.16,"sine",.05,0,f*1.5); },
+  big(){ [261.63,329.63,392,523.25].forEach((f,i)=>tone(f,.45,"sine",.13,i*.08)); },
+  fever(){ tone(261.63,.5,"sine",.07,0,523.25); [392,493.88,587.33,783.99].forEach((f,i)=>tone(f,.5,"sine",.12,.15+i*.09)); },
+  end(){ [392,329.63,523.25].forEach((f,i)=>tone(f,.4,"sine",.12,i*.15)); }
+};
+// 掛け声（VOICEVOX:Voidoll で作った音声ファイル。段階ごとの抑揚は生成時に付けてある）
+const WORDS={start:"よーい、スタート！",miss1:"ドンマイ！",miss2:"おしい！",miss3:"次いこう！",shimekiri:"締め切り！",otsukare:"おつかれさま！",saikoueki:"過去最高益！",
+  iine:"いいね！",sonochoshi:"その調子！",umai:"うまい！",iinagare:"いい流れ！",kiteru:"きてるね！",saeteru:"冴えてる！",ato1:"あと1つでフィーバー！",
+  sugoi:"すごい！",subarashii:"すばらしい！",kireteru:"キレてる！",madamada:"まだまだ！",tomaranai:"止まらない！",attoteki:"圧倒的！",tensai:"天才！",ato1b:"あと1つでフィーバー！",
+  muteki:"無敵！",kanpeki:"完璧！",densetsu:"伝説級！",saikyo:"最強！",tatsujinnoiki:"達人の域！",susamajii:"すさまじい！",ijigen:"異次元！",ato1c:"あと1つでフィーバー！",
+  nice:"ナイス！",kamigakari:"神がかり！",fever:"フィーバー！",timeup:"タイムアップ！",best:"自己ベスト！"};
+const voiceBuf={}; let voiceSrc=null, voicePromise=null, voiceTimer=null;
+// ファイルはページ表示時に取得しておき、ゲーム開始時（ユーザー操作後）に音として使える形にする
+const voiceRaw={};
+function loadVoices(){ return Promise.resolve(); }
+// 鳴き声：key（掛け声の種類）と今のコンボ数で鳴き方を変える
+let dogNodes=[];
+function say(key){
+  const a=audio(); if(!a) return;
+  hush();
+  let d;
+  if(key==="start") d=barks(2,1);
+  else if(key.startsWith("miss")) d=sadWhine();
+  else if(key==="fever"||key==="timeup") d=howl();
+  else if(key==="best") d=barks(3,1.25);
+  else if(key==="otsukare") d=barks(1,.9);
+  else d=barks(combo<5?1:combo<15?2:3, 1+Math.min(combo,30)*.012);
+  botTalk(d);
+}
+let noiseBuf=null;
+function noise(a){ if(!noiseBuf){ noiseBuf=a.createBuffer(1,a.sampleRate*.2,a.sampleRate); const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return noiseBuf; }
+function keep(n){ dogNodes.push(n); return n; }
+// 「ワン！」1回：のこぎり波の音程を素早く下げ、息の音（ノイズ）を少し混ぜる。p で高さを変える
+function bark(t,p){
+  const a=actx;
+  const o=keep(a.createOscillator()), f=a.createBiquadFilter(), g=a.createGain();
+  o.type="sawtooth"; o.frequency.setValueAtTime(560*p,t); o.frequency.exponentialRampToValueAtTime(320*p,t+.13);
+  f.type="bandpass"; f.frequency.value=1000*p; f.Q.value=1.2;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.35,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+  o.connect(f); f.connect(g); g.connect(a.destination); o.start(t); o.stop(t+.2);
+  const n=keep(a.createBufferSource()), nf=a.createBiquadFilter(), ng=a.createGain();
+  n.buffer=noise(a); nf.type="bandpass"; nf.frequency.value=1600*p; nf.Q.value=.8;
+  ng.gain.setValueAtTime(.0001,t); ng.gain.exponentialRampToValueAtTime(.12,t+.008); ng.gain.exponentialRampToValueAtTime(.0001,t+.09);
+  n.connect(nf); nf.connect(ng); ng.connect(a.destination); n.start(t); n.stop(t+.1);
+}
+function barks(k,p){ const t=actx.currentTime; for(let i=0;i<k;i++) bark(t+i*.2,p); return k*.2+.05; }
+// 音程をゆらしながら長く伸ばす音（アオーン・クゥーン）
+function longCry(t,dur,f0,f1,f2,type,vol,cut){
+  const a=actx;
+  const o=keep(a.createOscillator()), lfo=keep(a.createOscillator()), ld=a.createGain(), f=a.createBiquadFilter(), g=a.createGain();
+  o.type=type; o.frequency.setValueAtTime(f0,t); o.frequency.linearRampToValueAtTime(f1,t+dur*.45); o.frequency.linearRampToValueAtTime(f2,t+dur);
+  lfo.frequency.value=5.5; ld.gain.value=f1*.025; lfo.connect(ld); ld.connect(o.frequency);
+  f.type="lowpass"; f.frequency.value=cut;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.08); g.gain.setValueAtTime(vol,t+dur*.7); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(f); f.connect(g); g.connect(a.destination); o.start(t); lfo.start(t); o.stop(t+dur+.05); lfo.stop(t+dur+.05);
+}
+// フィーバー・タイムアップ：アオーン
+function howl(){ const t=actx.currentTime; longCry(t,1.1,440,720,520,"triangle",.22,2200); return 1.15; }
+// 間違えたとき：低い「ウゥ…」と「クゥーン」
+function sadWhine(){ const t=actx.currentTime; bark(t,.5); longCry(t+.2,.6,330,300,200,"triangle",.16,900); return .85; }
+
+// ===== マスコット（犬）=====
+const BOT_FACES={
+  normal:'<g class="eyes"><circle cx="38" cy="42" r="3.6" fill="#3B2A1E" stroke="none"/><circle cx="62" cy="42" r="3.6" fill="#3B2A1E" stroke="none"/></g><path class="mouth" d="M43 63 Q46.5 67 50 63 Q53.5 67 57 63"/>',
+  happy:'<g class="eyes"><path d="M33 44 L38 39 L43 44"/><path d="M57 44 L62 39 L67 44"/></g><g class="mouth"><path d="M42 62 Q50 73 58 62 Z" fill="#3B2A1E"/><ellipse cx="50" cy="68" rx="4.5" ry="3.5" fill="#F7768E" stroke="none"/></g><ellipse cx="29" cy="52" rx="4.5" ry="2.6" fill="#F7A3B5" stroke="none"/><ellipse cx="71" cy="52" rx="4.5" ry="2.6" fill="#F7A3B5" stroke="none"/>',
+  excited:'<g class="eyes"><path d="M33 38 L41 42 L33 46"/><path d="M67 38 L59 42 L67 46"/></g><g class="mouth"><path d="M40 61 H60 Q60 74 50 74 Q40 74 40 61 Z" fill="#3B2A1E"/><path d="M45 69 Q50 80 55 69 Z" fill="#F7768E" stroke="none"/></g><ellipse cx="29" cy="52" rx="4.5" ry="2.6" fill="#F7A3B5" stroke="none"/><ellipse cx="71" cy="52" rx="4.5" ry="2.6" fill="#F7A3B5" stroke="none"/>',
+  sad:'<g class="eyes"><path d="M33 44 L41 40.5"/><path d="M67 44 L59 40.5"/></g><path class="mouth" d="M44 67 Q50 62 56 67"/><path d="M68 47 Q65.5 51.5 68 53.5 Q70.5 51.5 68 47 Z" fill="#5AA9E6" stroke="none"/>'
+};
+// face なし＝画面用（全表情を入れて CSS で切り替え）、face あり＝画像用（その表情だけ）
+function botSVG(face){
+  const faces=face?BOT_FACES[face]:Object.keys(BOT_FACES).map(k=>'<g class="f f-'+k+'">'+BOT_FACES[k]+'</g>').join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" width="100" height="110" aria-hidden="true">'
+   +'<ellipse cx="38" cy="104" rx="8" ry="5" fill="#C98A4B"/><ellipse cx="62" cy="104" rx="8" ry="5" fill="#C98A4B"/>'
+   +'<rect x="29" y="70" width="42" height="36" rx="16" fill="#E2A766"/>'
+   +'<rect x="31" y="72" width="38" height="7" rx="3.5" fill="#E5404F"/><circle cx="50" cy="83" r="4.5" fill="#F2C230"/>'
+   +'<ellipse cx="19" cy="42" rx="11" ry="22" transform="rotate(14 19 42)" fill="#A8693A"/><ellipse cx="81" cy="42" rx="11" ry="22" transform="rotate(-14 81 42)" fill="#A8693A"/>'
+   +'<circle cx="50" cy="45" r="31" fill="#E2A766"/>'
+   +'<ellipse cx="50" cy="61" rx="17" ry="13" fill="#FFF4E6"/>'
+   +'<ellipse cx="50" cy="54" rx="5.5" ry="4" fill="#3B2A1E"/>'
+   +'<g fill="none" stroke="#3B2A1E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+   +faces
+   +'</g></svg>';
+}
+document.querySelectorAll(".bot").forEach(b=>b.innerHTML=botSVG());
+// 画像（シェア画像など）に描くためのポチ
+function botImage(face){
+  return new Promise(ok=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>ok(null);
+    im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(botSVG(face));});
+}
+let botTimer=null;
+// 一時的に表情を変えて、ms 後に「いつもの顔」（フィーバー中は大はしゃぎ）に戻す
+function botFace(face,ms,el){
+  const b=el||$("botGame"); if(!b) return;
+  b.dataset.face=face; clearTimeout(botTimer);
+  if(ms) botTimer=setTimeout(()=>{ b.dataset.face=fever?"excited":"normal"; },ms);
+}
+function botHop(cls){ const b=$("botGame"); if(!b) return; b.classList.remove("hop","shiver"); restart(b,cls||"hop"); }
+let talkTimer=null;
+function botTalk(sec){
+  const b=document.querySelector(".screen.on .bot"); if(!b) return;
+  document.querySelectorAll(".bot.talk").forEach(x=>x.classList.remove("talk"));
+  b.classList.add("talk"); clearTimeout(talkTimer);
+  talkTimer=setTimeout(()=>b.classList.remove("talk"),sec*1000);
+}
+
+function hush(){ clearTimeout(voiceTimer); try{ if(voiceSrc) voiceSrc.stop(); }catch(e){} voiceSrc=null; dogNodes.forEach(n=>{try{n.stop()}catch(e){}}); dogNodes=[]; }
+
+function setSound(on,init){
+  soundOn=on; store.set("sound",on); if(!on) hush();
+  $("sndMenu").textContent= on?"🔊 サウンドON":"🔇 サウンドOFF";
+  $("sndGame").textContent= on?"🔊":"🔇";
+  if(on&&!init){ audio(); loadVoices(); }
+}
+
+// フィーバー：10コンボごとに5秒間 得点2倍＋残り時間3秒追加（ミスで終了）
+function startFever(){
+  fever=true; feverCount++; feverUntil=Date.now()+5000; endAt+=3000;
+  document.body.classList.add("fever");
+  restart($("addt"),"on");
+  SFX.fever();
+  botFace("excited");
+}
+function endFever(){ fever=false; document.body.classList.remove("fever"); if($("botGame")&&$("botGame").dataset.face==="excited") $("botGame").dataset.face="normal"; }
+
+// 2コンボ以上は毎回掛け声（段階で強くなる）、5コンボ以上はカードも光る、5の倍数で豪華な演出
+const COMBO_CALLS={2:"iine",3:"sonochoshi",4:"umai",5:"nice",6:"iinagare",7:"kiteru",8:"saeteru",9:"ato1",
+  11:"sugoi",12:"subarashii",13:"kireteru",14:"madamada",15:"kamigakari",16:"tomaranai",17:"attoteki",18:"tensai",19:"ato1b",
+  21:"muteki",22:"kanpeki",23:"densetsu",24:"saikyo",25:"tatsujinnoiki",26:"muteki",27:"susamajii",28:"ijigen",29:"ato1c"};
+// フィーバーは 黒字（10,30,50…）と 決算（20,40…）を交互に。31コンボ以降はフィーバー以外ずっと「減価償却！」
+function callFor(n){
+  if(n%10===0) return "fever";
+  if(COMBO_CALLS[n]) return COMBO_CALLS[n];
+  if(n%10===9) return "ato1c";
+  return ["kanpeki","saikyo","susamajii","ijigen","tatsujinnoiki","muteki"][n%6];
+}
+function comboFx(n){
+  if(n<2) return;
+  const key=callFor(n), word=WORDS[key];
+  say(key);
+  if(n>=5) restart($("qcard"),"glow");
+  if(n>=5&&n%5===0){
+    if(n%10===0){ startFever(); $("megaTxt").innerHTML=word+"<small>"+n+"コンボ 得点2倍＋3秒</small>"; }
+    else { SFX.big(); $("megaTxt").innerHTML=n+"コンボ<small>"+word+"</small>"; }
+    $("megaTxt").classList.toggle("long",word.length>=7);
+    restart($("mega"),"on"); restart($("flash"),"on");
+    confetti(n>=15?70:45);
+    if(navigator.vibrate) try{navigator.vibrate([30,40,30])}catch(e){}
+  }else{
+    // コンボ数は右上に出ているので、吹き出しは言葉だけ
+    const b=$("burst"); b.innerHTML=word.replace("あと1つで","あと1つで<br>");
+    b.classList.remove("l1","l2","l3"); if(n>=5) b.classList.add(n<10?"l1":n<20?"l2":"l3");
+    restart(b,"on");
+  }
+}
+
+// 正解した答えがカードからボタンへ飛び込み、ボタンが弾んで粒が散る。演出しなかったときは false
+function flyTo(btn,n){
+  if(reduceMotion||!btn||!document.body.animate) return false;
+  const q=$("qtext"), from=q.getBoundingClientRect(), to=btn.getBoundingClientRect();
+  const word=(cur.main||cur.plain||q.textContent||"").trim();
+  const f=document.createElement("div"); f.className="fly";
+  f.textContent=word.length>10?word.slice(0,10)+"…":word;
+  f.style.left=(from.left+from.width/2)+"px"; f.style.top=(from.top+from.height/2)+"px";
+  document.body.appendChild(f); q.style.visibility="hidden";
+  const dx=to.left+to.width/2-(from.left+from.width/2), dy=to.top+to.height/2-(from.top+from.height/2);
+  f.animate([
+    {transform:"translate(-50%,-50%) scale(1)"},
+    {transform:"translate(-50%,-50%) translate("+dx*.35+"px,"+(dy*.35-24)+"px) scale(.95)",offset:.4},
+    {transform:"translate(-50%,-50%) translate("+dx+"px,"+dy+"px) scale(.45)",opacity:.6}
+  ],{duration:240,easing:"ease-in"}).onfinish=()=>{
+    f.remove(); btn.classList.remove("squish"); restart(btn,"boing"); SFX.pop(n);
+    popBits(to.left+to.width/2,to.top+to.height/2,getComputedStyle(btn).backgroundColor,6+Math.min(n,10));
+  };
+  return true;
+}
+function popBits(x,y,color,count){
+  for(let i=0;i<count;i++){
+    const s=document.createElement("span"); s.className="bit";
+    s.style.left=x+"px"; s.style.top=y+"px"; s.style.background=i%3?color:"#fff";
+    s.style.boxShadow="0 0 0 2px "+color;
+    document.body.appendChild(s);
+    const a=Math.PI*2*i/count+Math.random()*.4, d=34+Math.random()*30;
+    s.animate([
+      {transform:"translate(0,0) scale(1)",opacity:1},
+      {transform:"translate("+Math.cos(a)*d+"px,"+Math.sin(a)*d+"px) scale(.2)",opacity:0}
+    ],{duration:380+Math.random()*120,easing:"cubic-bezier(.2,.8,.4,1)"}).onfinish=()=>s.remove();
+  }
+}
+function confetti(count){
+  if(reduceMotion||!document.body.animate) return;
+  const r=$("qcard").getBoundingClientRect(), ox=r.left+r.width/2, oy=r.top+r.height/2;
+  const cols=["#1E7FE0","#8B47D6","#22A45A","#F2A20C","#EE4D5F","#FF7A1A"];
+  for(let i=0;i<count;i++){
+    const s=document.createElement("span"); s.className="conf";
+    s.style.left=ox+"px"; s.style.top=oy+"px"; s.style.background=cols[i%cols.length];
+    document.body.appendChild(s);
+    const a=Math.random()*Math.PI*2, v=90+Math.random()*170;
+    const dx=Math.cos(a)*v, dy=Math.sin(a)*v-80, rot=(Math.random()-.5)*720;
+    s.animate([
+      {transform:"translate(0,0) rotate(0deg)",opacity:1},
+      {transform:"translate("+dx+"px,"+dy+"px) rotate("+rot/2+"deg)",opacity:1,offset:.5},
+      {transform:"translate("+dx*1.25+"px,"+(dy+260)+"px) rotate("+rot+"deg)",opacity:0}
+    ],{duration:1100+Math.random()*500,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>s.remove();
+  }
+}
+
+// ===== 称号 =====
+// 称号（天井は3000点）
+const TITLES=[[0,"犬ビギナー"],[150,"わんこ好き"],[300,"散歩名人"],[450,"ドッグトレーナー"],[600,"トリマー"],[800,"ブリーダー"],[1000,"ドッグショー審査員"],[1500,"犬博士"],[2000,"犬の達人"],[2500,"ワンダフルマスター"],[3000,"伝説の愛犬家"]];
+function titleFor(sc){let t=TITLES[0];for(const x of TITLES) if(sc>=x[0]) t=x;return t}
+function nextTitle(sc){return TITLES.find(x=>x[0]>sc)}
+
+// ===== 画像生成 =====
+const F={d:'"Dela Gothic One","M PLUS Rounded 1c",sans-serif',r:'"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif',p:'"Mochiy Pop One","M PLUS Rounded 1c",sans-serif'};
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function fit(ctx,text,weight,fam,size,maxW){let s=size;do{ctx.font=weight+" "+s+"px "+fam;if(ctx.measureText(text).width<=maxW)break;s-=1}while(s>8);return s}
+function momentWord(s){if(s.fever)return "フィーバー中！";if(s.combo<2)return "いい調子！";return WORDS[callFor(s.combo)]}
+async function loadImgFonts(text){
+  if(!document.fonts||!document.fonts.load) return;
+  const t=text+"0123456789点%回";
+  try{await Promise.race([Promise.all([
+    document.fonts.load('400 40px "Dela Gothic One"',t),
+    document.fonts.load('800 40px "M PLUS Rounded 1c"',t),
+    document.fonts.load('400 40px "Mochiy Pop One"',t)]),new Promise(r=>setTimeout(r,2500))])}catch(e){}
+}
+
+function drawMoment(ctx,x,y,w,h,s,mk,bot){
+  const k=w/360;
+  ctx.save();
+  ctx.textBaseline="middle";
+  rr(ctx,x,y,w,h,30*k);ctx.fillStyle="#1D2340";ctx.fill();
+  const ix=x+9*k,iy=y+9*k,iw=w-18*k,ih=h-18*k;
+  ctx.save();rr(ctx,ix,iy,iw,ih,22*k);ctx.clip();
+  if(s&&s.fever){const g=ctx.createRadialGradient(ix+iw/2,iy,10,ix+iw/2,iy,ih*.8);g.addColorStop(0,"#FFE0A3");g.addColorStop(1,"#F3F5FA");ctx.fillStyle=g}else ctx.fillStyle="#F3F5FA";
+  ctx.fillRect(ix,iy,iw,ih);
+  if(s){
+    let seed=s.combo*97+13;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+    const cols=["#1E7FE0","#8B47D6","#22A45A","#F2A20C","#EE4D5F","#FF7A1A"];
+    for(let i=0;i<44;i++){ctx.save();ctx.translate(ix+rnd()*iw,iy+40*k+rnd()*ih*.7);ctx.rotate(rnd()*6.28);ctx.fillStyle=cols[i%6];ctx.fillRect(-4*k,-6*k,8*k,12*k);ctx.restore()}
+  }
+  const P=16*k;let cy=iy+22*k;
+  rr(ctx,ix+P,cy,iw-2*P,12*k,6*k);ctx.fillStyle="#DFE3EE";ctx.fill();
+  rr(ctx,ix+P,cy,(iw-2*P)*.55,12*k,6*k);
+  if(s&&s.fever){const g=ctx.createLinearGradient(ix+P,0,ix+iw-P,0);["#FF5E7E","#FFB020","#22C55E","#1E7FE0","#8B47D6"].forEach((c,i)=>g.addColorStop(i/4,c));ctx.fillStyle=g}else ctx.fillStyle="#22A45A";
+  ctx.fill();
+  cy+=32*k;
+  ctx.textAlign="left";ctx.fillStyle="#1D2340";ctx.font="400 "+(26*k)+"px "+F.d;
+  ctx.fillText((s?s.score:0)+"点",ix+P,cy+13*k);
+  const ct=(s?s.combo:0)+"コンボ";ctx.font="400 "+(15*k)+"px "+F.p;const cw=ctx.measureText(ct).width+24*k;
+  rr(ctx,ix+iw-P-cw,cy,cw,28*k,14*k);ctx.fillStyle="#FF7A1A";ctx.fill();
+  ctx.fillStyle="#fff";ctx.textAlign="center";ctx.fillText(ct,ix+iw-P-cw/2,cy+14*k);
+  cy+=88*k;
+  const qh=150*k,fv=s&&s.fever,cardTop=cy;
+  rr(ctx,ix+P,cy+6*k,iw-2*P,qh,18*k);ctx.fillStyle=fv?"#E08A00":"#DFE3EE";ctx.fill();
+  rr(ctx,ix+P,cy,iw-2*P,qh,18*k);ctx.fillStyle="#fff";ctx.fill();ctx.lineWidth=2.5*k;ctx.strokeStyle=fv?"#FFB020":"#DFE3EE";ctx.stroke();
+  const main=s?s.main:"コンボなし";
+  ctx.fillStyle="#1D2340";fit(ctx,main,"800",F.r,32*k,iw-2*P-28*k);
+  ctx.fillText(main,ix+iw/2,cy+(s&&s.sub?66*k:qh/2+8*k));
+  if(s&&s.sub){ctx.fillStyle="#6B7290";fit(ctx,s.sub,"800",F.r,17*k,iw-2*P-28*k);ctx.fillText(s.sub,ix+iw/2,cy+102*k)}
+  if(fv){const ft="フィーバー 得点×2";ctx.font="400 "+(12*k)+"px "+F.p;const fw=ctx.measureText(ft).width+22*k;
+    const g=ctx.createLinearGradient(ix+iw/2-fw/2,0,ix+iw/2+fw/2,0);g.addColorStop(0,"#FF5E7E");g.addColorStop(1,"#FFB020");
+    rr(ctx,ix+iw/2-fw/2,cy+qh-32*k,fw,22*k,11*k);ctx.fillStyle=g;ctx.fill();ctx.fillStyle="#fff";ctx.fillText(ft,ix+iw/2,cy+qh-21*k)}
+  if(bot) ctx.drawImage(bot,ix+P+(iw-2*P)*.28-45*k,cardTop-60*k,90*k,99*k);
+  cy+=qh+26*k;
+  const bw=(iw-2*P-12*k)/2,lh=iy+ih-cy-22*k;
+  const btn=(bx,by,w2,h2,col,sh,label)=>{rr(ctx,bx,by+5*k,w2,h2,14*k);ctx.fillStyle=sh;ctx.fill();rr(ctx,bx,by,w2,h2,14*k);ctx.fillStyle=col;ctx.fill();ctx.fillStyle="#fff";fit(ctx,label,"800",F.r,(mk==="lr"?26:18)*k,w2-8*k);ctx.fillText(label,bx+w2/2,by+h2/2)};
+  if(mk==="lr"){btn(ix+P,cy,bw,lh,"#1E7FE0","#1561AD","借方");btn(ix+P+bw+12*k,cy,bw,lh,"#F07A2B","#BF5A17","貸方")}
+  else{const gp=10*k,rh=(lh-gp)/2,rx=ix+P+bw+12*k,c=(s&&s.choices)||["","","",""];
+    btn(ix+P,cy,bw,rh,"#1E7FE0","#1561AD",c[0]);btn(rx,cy,bw,rh,"#8B47D6","#6A30A8",c[1]);
+    btn(ix+P,cy+rh+gp,bw,rh,"#22A45A","#187A42",c[2]);btn(rx,cy+rh+gp,bw,rh,"#EE4D5F","#BA3243",c[3])}
+  if(s){
+    ctx.save();ctx.translate(ix+iw/2,iy+ih*.44);ctx.rotate(-.09);ctx.textAlign="center";
+    const big=s.combo+"コンボ";fit(ctx,big,"400",F.p,54*k,iw-40*k);
+    ctx.lineJoin="round";ctx.lineWidth=9*k;ctx.strokeStyle="#fff";
+    ctx.fillStyle="#C25500";ctx.fillText(big,0,6*k);ctx.strokeText(big,0,0);ctx.fillStyle="#FF7A1A";ctx.fillText(big,0,0);
+    const wd=momentWord(s);fit(ctx,wd,"400",F.p,24*k,iw-40*k);
+    ctx.fillStyle="#C25500";ctx.fillText(wd,0,46*k);ctx.fillStyle="#fff";ctx.fillText(wd,0,43*k);
+    ctx.restore();
+  }
+  ctx.restore();ctx.restore();
+}
+
+function drawShare(bot,botM){
+  const c=document.createElement("canvas");c.width=1200;c.height=675;const ctx=c.getContext("2d");
+  ctx.fillStyle="#F3F5FA";ctx.fillRect(0,0,1200,675);
+  const band=ctx.createLinearGradient(0,0,1200,0);band.addColorStop(0,"#1E7FE0");band.addColorStop(1,"#8B47D6");
+  ctx.fillStyle=band;ctx.fillRect(0,0,1200,14);
+  ctx.textBaseline="alphabetic";ctx.textAlign="left";
+  ctx.fillStyle="#6B7290";ctx.font="800 28px "+F.r;ctx.fillText("犬種ミニゲーム｜"+M.title,64,82);
+  ctx.fillStyle="#1D2340";const st=String(score);fit(ctx,st,"400",F.d,150,520);ctx.fillText(st,58,238);
+  const sw=ctx.measureText(st).width;ctx.font="800 40px "+F.r;ctx.fillText("点",72+sw,234);
+  ctx.textBaseline="middle";
+  const t=titleFor(score)[1],lbl="称号："+t;ctx.font="400 32px "+F.p;const tw=ctx.measureText(lbl).width+56;
+  rr(ctx,64,278,tw,60,30);ctx.fillStyle="#5A2E99";ctx.fill();
+  const tg=ctx.createLinearGradient(64,0,64+tw,0);tg.addColorStop(0,"#8B47D6");tg.addColorStop(1,"#1E7FE0");
+  rr(ctx,64,272,tw,60,30);ctx.fillStyle=tg;ctx.fill();ctx.fillStyle="#fff";ctx.fillText(lbl,92,303);
+  const rate=total?Math.round(correct/total*100):0;
+  [[rate+"%","正答率"],[String(maxCombo),"最大コンボ"],[feverCount+"回","フィーバー"]].forEach((v,i)=>{
+    const bx=64+i*196,by=364;rr(ctx,bx,by,180,104,20);ctx.fillStyle="#fff";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#DFE3EE";ctx.stroke();
+    ctx.textAlign="center";ctx.fillStyle="#1D2340";ctx.font="400 38px "+F.d;ctx.fillText(v[0],bx+90,by+42);
+    ctx.fillStyle="#6B7290";ctx.font="800 20px "+F.r;ctx.fillText(v[1],bx+90,by+80)});
+  const sq=24,gp=6;marks.slice(0,30).forEach((v,i)=>{rr(ctx,64+(i%15)*(sq+gp),496+Math.floor(i/15)*(sq+gp),sq,sq,5);ctx.fillStyle=v?"#22A45A":"#E5404F";ctx.fill()});
+  ctx.textAlign="left";ctx.textBaseline="alphabetic";ctx.fillStyle="#1D2340";ctx.font="800 26px "+F.r;
+  ctx.fillText("犬好きなら60秒で何点取れる？",64,622);
+  ctx.textAlign="center";ctx.fillStyle="#6B7290";ctx.font="800 20px "+F.r;ctx.fillText("最高コンボの瞬間",960,56);
+  if(bot){
+    // 吹き出し（右端は「最高コンボの瞬間」に重ならないよう 790 まで）
+    const ln=kassyLine();ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="400 20px "+F.p;
+    const lw=ctx.measureText(ln).width+32, lx=Math.min(698-lw/2,790-lw);
+    rr(ctx,lx,94,lw,44,22);ctx.fillStyle="#fff";ctx.fill();ctx.lineWidth=3;ctx.strokeStyle="#1D2340";ctx.stroke();
+    ctx.beginPath();ctx.moveTo(688,136);ctx.lineTo(698,150);ctx.lineTo(708,136);ctx.closePath();ctx.fillStyle="#fff";ctx.fill();
+    ctx.beginPath();ctx.moveTo(688,137.5);ctx.lineTo(698,150);ctx.lineTo(708,137.5);ctx.strokeStyle="#1D2340";ctx.stroke();
+    ctx.fillStyle="#1D2340";ctx.fillText(ln,lx+lw/2,116);
+    ctx.drawImage(bot,628,150,140,154);
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="400 22px "+F.p;const nw=ctx.measureText("ポチ").width+28;
+    rr(ctx,698-nw/2,312,nw,36,18);ctx.fillStyle="#1D2340";ctx.fill();ctx.fillStyle="#fff";ctx.fillText("ポチ",698,331); }
+  drawMoment(ctx,800,72,320,586,snap,mode,botM);
+  return c;
+}
+
+async function renderImages(){
+  $("shareImg").removeAttribute("src");$("momentImg").removeAttribute("src");
+  $("momentWrap").style.display=snap?"block":"none";
+  const words=TITLES.map(x=>x[1]).join("")+Object.values(WORDS).join("")+"減価償却が止まらない次いこうポチ犬種ミニゲーム｜"+M.title+"称号：最高コンボの瞬間正答率最大コンボフィーバー回得点×2中！いい調子犬好きなら60秒で何点取れる？資産負債純資産収益費用借方貸方"+(snap?snap.main+snap.sub:"コンボなし");
+  await loadImgFonts(words);
+  try{
+    const botM=snap?await botImage(snap.fever||snap.combo>=5?"excited":"happy"):null, botS=await botImage($("botRes").dataset.face||"happy");
+    if(snap){const m=document.createElement("canvas");m.width=720;m.height=1280;drawMoment(m.getContext("2d"),0,0,720,1280,snap,mode,botM);$("momentImg").src=m.toDataURL("image/png")}
+    shareCanvas=drawShare(botS,botM);$("shareImg").src=shareCanvas.toDataURL("image/png");
+  }catch(e){}
+}
+
+// ===== 行動の計測（GoatCounter のイベント。localhost では送られない）=====
+// start-◯ / finish-◯ / quit-◯（◯は sort か lr）、share-x / share-copy / share-save / share-image
+function track(name){ try{ if(window.goatcounter&&window.goatcounter.count) window.goatcounter.count({path:name,title:name,event:true}); }catch(e){} }
+
+// ===== スコア送信（Google スプレッドシートへ） =====
+function playerId(){let id=store.get("pid",null);if(!id){id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);store.set("pid",id)}return id}
+function sendScore(){
+  if(!SCORE_ENDPOINT) return;
+  const body={pid:playerId(),name:(store.get("nick","")||"").slice(0,12),mode,score,title:titleFor(score)[1],correct,total,maxCombo,fever:feverCount};
+  // PC内でのテスト中は本番のスプレッドシートに送らない
+  if(IS_LOCAL){console.log("[テスト環境] スコア送信をスキップ",body);return}
+  // text/plain の POST はプリフライト不要。応答は読まないので no-cors で送る
+  try{fetch(SCORE_ENDPOINT,{method:"POST",mode:"no-cors",keepalive:true,headers:{"Content-Type":"text/plain"},body:JSON.stringify(body)}).catch(()=>{})}catch(e){}
+}
+
+// ===== ランキング（この端末に上位10件を保存、上位5件を表示） =====
+let rankMode="sort";
+function saveHistory(){
+  const k="hist_"+mode,h=store.get(k,[]),d=new Date();
+  h.push({s:score,c:maxCombo,d:(d.getMonth()+1)+"/"+d.getDate(),t:Date.now()});
+  h.sort((a,b)=>b.s-a.s||a.t-b.t);
+  store.set(k,h.slice(0,10));
+}
+function renderRank(){
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.rank===rankMode));
+  let h=store.get("hist_"+rankMode,[]);
+  if(!h.length){const b=store.get("best_"+rankMode,0); if(b>0) h=[{s:b,c:null,d:"以前"}];}
+  const box=$("rankList");
+  if(!h.length){box.innerHTML="<div class='rempty'>まだ記録がありません。遊ぶとここに上位5件が並びます。</div>";return}
+  box.innerHTML=h.slice(0,5).map((r,i)=>
+    "<div class='rrow'><span class='medal"+(i<3?" m"+(i+1):"")+"'>"+(i+1)+"</span><span class='rs'>"+r.s+"</span><span class='rt'>"+titleFor(r.s)[1]+"</span><span class='rd'>"+r.d+(r.c!=null?"<br>"+r.c+"コンボ":"")+"</span></div>"
+  ).join("");
+}
+
+function imgBlob(){return new Promise(r=>shareCanvas?shareCanvas.toBlob(r,"image/png"):r(null))}
+async function saveImage(){
+  const blob=await imgBlob();if(!blob)return;
+  if(!dlNS){
+    try{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="boki-minigame-score.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+      $("toast").textContent="画像を保存しました。保存されない場合は画像を長押ししてください。"}catch(e){$("toast").textContent="画像を長押しして保存してください。"}
+    return}
+  try{await dlNS.save({filename:"boki-minigame-score.png",data:blob});$("toast").textContent="画像を保存しました。Xの投稿画面で添付してください。"}
+  catch(e){if(e&&e.code==="declined")return;$("toast").textContent="保存できませんでした。画像を長押しして保存してください。"}
+}
+async function shareImage(){
+  const blob=await imgBlob();if(!blob)return;
+  try{
+    const file=new File([blob],"boki-minigame-score.png",{type:"image/png"});
+    if(!(navigator.canShare&&navigator.canShare({files:[file]})))throw 0;
+    await navigator.share({files:[file],text:shareText()+"\n"+SHARE_URL});
+  }catch(e){if(e&&e.name==="AbortError")return;$("toast").textContent="この画面では画像のシェアができません。「画像を保存」か長押しで保存してください。"}
+}
+try{if(window.claude&&window.claude.use)window.claude.use("downloads").then(n=>{dlNS=n}).catch(()=>{})}catch(e){}
+
+// 結果に合わせたポチの一言（シェア文と画像に入れる）
+let lastIsNew=false;
+function kassyLine(){
+  if(lastIsNew) return "自己ベスト！";
+  if(maxCombo>=30) return "異次元！";
+  if(total>=10&&correct===total) return "完璧！";
+  if(maxCombo>=25) return "達人の域！";
+  if(maxCombo>=15) return "神がかり！";
+  if(maxCombo>=10) return "フィーバー！";
+  if(score>=150) return "その調子！";
+  return "次いこう！";
+}
+// Xの上限（280。日本語・絵文字は2と数える）に収まるよう、マスは最初の20問・正答率は短い書き方
+function shareText(){
+  const rows=[];const g=marks.slice(0,20).map(v=>v?"🟩":"🟥");
+  for(let i=0;i<g.length;i+=10) rows.push(g.slice(i,i+10).join(""));
+  const rate=total?Math.round(correct/total*100):0;
+  return "犬種ミニゲーム「"+M.title+"」\n"+score+"点・称号「"+titleFor(score)[1]+"」\n正答率"+rate+"%（"+correct+"/"+total+"問）\n🔥最大"+maxCombo+"コンボ"+(feverCount?"・🎉フィーバー"+feverCount+"回":"")+"\n🐶ポチ「"+kassyLine()+"」\n"+rows.join("\n")+"\n\n犬好きなら60秒で何点取れる？\n#犬 #犬好き";
+}
+
+function countUp(el,to){
+  if(reduceMotion||to===0){el.textContent=to;return}
+  const t0=performance.now(),dur=900;
+  (function f(t){const p=Math.min(1,(t-t0)/dur);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0);
+}
+
+function finish(){
+  ended=true;locked=true;hideSheet();bumpStreak();endFever();hush();SFX.end();
+  const k="best_"+mode, best=store.get(k,0), isNew=score>best&&score>0;
+  if(isNew) store.set(k,score);
+  lastIsNew=isNew; track("finish-"+mode);
+  $("botRes").dataset.face=isNew?"excited":score>=150?"happy":"normal";
+  say("timeup"); voiceTimer=setTimeout(()=>say(isNew?"best":"otsukare"),1300);
+  if(total>0) saveHistory();
+  if(total>0) sendScore();
+  $("rname").textContent=M.title+" の結果";
+  $("newbest").classList.toggle("on",isNew);
+  $("rcorrect").textContent=correct+"/"+total;
+  $("rrate").textContent=(total?Math.round(correct/total*100):0)+"%";
+  $("rmax").textContent=maxCombo;
+  const tt=titleFor(score), nt=nextTitle(score);
+  $("rtitle").textContent="称号："+tt[1];
+  $("rnext").textContent= nt ? "あと"+(nt[0]-score)+"点で「"+nt[1]+"」" : "最高の称号です";
+  renderImages();
+  $("shareX").href="https://twitter.com/intent/tweet?text="+encodeURIComponent(shareText())+"&url="+encodeURIComponent(SHARE_URL);
+  $("toast").textContent="";
+  const box=$("misses");
+  box.innerHTML = misses.length
+    ? "<h2>間違えた問題（"+misses.length+"）</h2>"+misses.map(m=>"<div class='miss'><b>"+m.plain+"</b><br>"+m.ex+"</div>").join("")
+    : "<h2>間違えた問題</h2><div class='empty'>"+(total?"全問正解です。":"まだ1問も答えていません。")+"</div>";
+  show("result");
+  $("result").querySelector(".result-scroll").scrollTop=0;
+  countUp($("rscore"),score);
+}
+
+async function copyResult(){
+  const text=shareText()+"\n"+SHARE_URL;
+  let ok=false;
+  try{await navigator.clipboard.writeText(text);ok=true}catch(e){
+    try{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();ok=document.execCommand("copy");ta.remove()}catch(e2){}
+  }
+  $("toast").textContent = ok ? "結果をコピーしました。Xに貼り付けてポストできます。" : "コピーできませんでした。画面を長押しして選択してください。";
+}
+
+document.querySelectorAll(".ans").forEach(b=>b.addEventListener("click",()=>answer(b.dataset.c)));
+// ステップ2（左右ジャッジ）は準備中。再開するときは LR_OPEN を true にする
+document.querySelector(".tabs").style.display="none"; rankMode="sort";
+document.querySelectorAll(".tile").forEach(b=>b.addEventListener("click",()=>{ if(!b.disabled) start(b.dataset.mode); }));
+$("again").addEventListener("click",()=>start(mode));
+$("home").addEventListener("click",()=>{refreshMenu();show("menu")});
+$("quit").addEventListener("click",()=>{if(!ended&&total>0) track("quit-"+mode);clearCountdown();clearInterval(timer);ended=true;hideSheet();endFever();hush();refreshMenu();show("menu")});
+$("copy").addEventListener("click",()=>{track("share-copy");copyResult()});
+$("saveImg").addEventListener("click",()=>{track("share-save");saveImage()});
+$("shareX").addEventListener("click",()=>track("share-x"));
+
+$("nick").value=store.get("nick","");
+$("nick").addEventListener("input",()=>store.set("nick",$("nick").value.trim().slice(0,12)));
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{rankMode=b.dataset.rank;renderRank()}));
+$("shareImgBtn").addEventListener("click",()=>{track("share-image");shareImage()});
+$("sndMenu").addEventListener("click",()=>setSound(!soundOn));
+$("sndGame").addEventListener("click",()=>setSound(!soundOn));
+setSound(soundOn,true);
+
+let sx=null,sy=null;
+$("qcard").addEventListener("touchstart",e=>{if(mode!=="lr")return;sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+$("qcard").addEventListener("touchend",e=>{
+  if(mode!=="lr"||sx===null)return;
+  const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;sx=null;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)) answer(dx<0?"dr":"cr");
+});
+document.addEventListener("keydown",e=>{
+  if(!$("game").classList.contains("on")||mode!=="lr")return;
+  if(e.key==="ArrowLeft")answer("dr");
+  if(e.key==="ArrowRight")answer("cr");
+});
+refreshMenu();
+// Xアプリ内のブラウザ（主に Android。iPhone は Safari と見分けられないことが多い）で開いたら案内を出す。?inapp=1 で表示テスト
+if(/Twitter/i.test(navigator.userAgent)||/[?&]inapp=1/.test(location.search)){ $("inapp").hidden=false; track("open-inapp-x"); }
+$("inappClose").addEventListener("click",()=>{$("inapp").hidden=true});
+// 掛け声はトップ画面を開いた時点で読み込んでおく（初回の「よーい、スタート！」に間に合わせるため）
+if(soundOn){ audio(); loadVoices(); }
+</script>
+</body>
+</html>
