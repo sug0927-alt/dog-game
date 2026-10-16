@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>犬種ミニゲーム</title>
+<title>わんわんあてゲーム</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="犬好きなら60秒で何点取れる？写真の犬の犬種を4択で当てるミニゲーム。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -275,6 +275,8 @@ body.fever .plus{color:#E08A00}
 body.fever .bot.sm svg{animation:feverbot .4s ease-in-out infinite alternate}
 @keyframes feverbot{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-4px) rotate(4deg)}}
 
+/* 犬版：タイトルが長いので画面幅に合わせて文字を小さくする */
+.brandrow .brand{font-size:clamp(22px,7.2vw,30px);white-space:nowrap}
 /* 犬版：写真と4択ボタン */
 #game .qcard{padding:8px 8px 26px;min-height:0}
 .qimg{display:block;width:100%;height:clamp(150px,30vh,230px);object-fit:cover;border-radius:16px;background:var(--line)}
@@ -326,7 +328,7 @@ body.fever .bot.sm svg{animation:feverbot .4s ease-in-out infinite alternate}
       <span class="kicker">じっくり見てたら間に合わない。<br>一瞬で犬種を見抜け！</span>
       <button class="snd" id="sndMenu">🔊 サウンドON</button>
     </div>
-    <div class="brandrow"><h1 class="brand">犬種ミニゲーム</h1><span class="botwrap"><span class="bot" id="botTop" data-face="normal"></span><span class="botname">ポチ</span></span></div>
+    <div class="brandrow"><h1 class="brand">わんわんあてゲーム</h1><span class="botwrap"><span class="bot" id="botTop" data-face="normal"></span><span class="botname">ワンワン</span></span></div>
     <p class="lead">1回60秒。写真の犬の犬種を、4択でどんどん当てよう。</p>
     <button class="tile" data-mode="sort">
       <span class="ico sort">🐶</span>
@@ -812,7 +814,7 @@ function botSVG(face){
    +'</g></svg>';
 }
 document.querySelectorAll(".bot").forEach(b=>b.innerHTML=botSVG());
-// 画像（シェア画像など）に描くためのポチ
+// 画像（シェア画像など）に描くためのワンワン
 function botImage(face){
   return new Promise(ok=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>ok(null);
     im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(botSVG(face));});
@@ -1016,7 +1018,7 @@ function drawShare(bot,botM){
   const band=ctx.createLinearGradient(0,0,1200,0);band.addColorStop(0,"#1E7FE0");band.addColorStop(1,"#8B47D6");
   ctx.fillStyle=band;ctx.fillRect(0,0,1200,14);
   ctx.textBaseline="alphabetic";ctx.textAlign="left";
-  ctx.fillStyle="#6B7290";ctx.font="800 28px "+F.r;ctx.fillText("犬種ミニゲーム｜"+M.title,64,82);
+  ctx.fillStyle="#6B7290";ctx.font="800 28px "+F.r;ctx.fillText("わんわんあてゲーム｜"+M.title,64,82);
   ctx.fillStyle="#1D2340";const st=String(score);fit(ctx,st,"400",F.d,150,520);ctx.fillText(st,58,238);
   const sw=ctx.measureText(st).width;ctx.font="800 40px "+F.r;ctx.fillText("点",72+sw,234);
   ctx.textBaseline="middle";
@@ -1042,8 +1044,8 @@ function drawShare(bot,botM){
     ctx.beginPath();ctx.moveTo(688,137.5);ctx.lineTo(698,150);ctx.lineTo(708,137.5);ctx.strokeStyle="#1D2340";ctx.stroke();
     ctx.fillStyle="#1D2340";ctx.fillText(ln,lx+lw/2,116);
     ctx.drawImage(bot,628,150,140,154);
-    ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="400 22px "+F.p;const nw=ctx.measureText("ポチ").width+28;
-    rr(ctx,698-nw/2,312,nw,36,18);ctx.fillStyle="#1D2340";ctx.fill();ctx.fillStyle="#fff";ctx.fillText("ポチ",698,331); }
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="400 22px "+F.p;const nw=ctx.measureText("ワンワン").width+28;
+    rr(ctx,698-nw/2,312,nw,36,18);ctx.fillStyle="#1D2340";ctx.fill();ctx.fillStyle="#fff";ctx.fillText("ワンワン",698,331); }
   drawMoment(ctx,800,72,320,586,snap,mode,botM);
   return c;
 }
@@ -1051,7 +1053,7 @@ function drawShare(bot,botM){
 async function renderImages(){
   $("shareImg").removeAttribute("src");$("momentImg").removeAttribute("src");
   $("momentWrap").style.display=snap?"block":"none";
-  const words=TITLES.map(x=>x[1]).join("")+Object.values(WORDS).join("")+"減価償却が止まらない次いこうポチ犬種ミニゲーム｜"+M.title+"称号：最高コンボの瞬間正答率最大コンボフィーバー回得点×2中！いい調子犬好きなら60秒で何点取れる？資産負債純資産収益費用借方貸方"+(snap?snap.main+snap.sub:"コンボなし");
+  const words=TITLES.map(x=>x[1]).join("")+Object.values(WORDS).join("")+"減価償却が止まらない次いこうワンワンわんわんあてゲーム｜"+M.title+"称号：最高コンボの瞬間正答率最大コンボフィーバー回得点×2中！いい調子犬好きなら60秒で何点取れる？資産負債純資産収益費用借方貸方"+(snap?snap.main+snap.sub:"コンボなし");
   await loadImgFonts(words);
   try{
     const botM=snap?await botImage(snap.fever||snap.combo>=5?"excited":"happy"):null, botS=await botImage($("botRes").dataset.face||"happy");
@@ -1114,7 +1116,7 @@ async function shareImage(){
 }
 try{if(window.claude&&window.claude.use)window.claude.use("downloads").then(n=>{dlNS=n}).catch(()=>{})}catch(e){}
 
-// 結果に合わせたポチの一言（シェア文と画像に入れる）
+// 結果に合わせたワンワンの一言（シェア文と画像に入れる）
 let lastIsNew=false;
 function kassyLine(){
   if(lastIsNew) return "自己ベスト！";
@@ -1131,7 +1133,7 @@ function shareText(){
   const rows=[];const g=marks.slice(0,20).map(v=>v?"🟩":"🟥");
   for(let i=0;i<g.length;i+=10) rows.push(g.slice(i,i+10).join(""));
   const rate=total?Math.round(correct/total*100):0;
-  return "犬種ミニゲーム「"+M.title+"」\n"+score+"点・称号「"+titleFor(score)[1]+"」\n正答率"+rate+"%（"+correct+"/"+total+"問）\n🔥最大"+maxCombo+"コンボ"+(feverCount?"・🎉フィーバー"+feverCount+"回":"")+"\n🐶ポチ「"+kassyLine()+"」\n"+rows.join("\n")+"\n\n犬好きなら60秒で何点取れる？\n#犬 #犬好き";
+  return "わんわんあてゲーム「"+M.title+"」\n"+score+"点・称号「"+titleFor(score)[1]+"」\n正答率"+rate+"%（"+correct+"/"+total+"問）\n🔥最大"+maxCombo+"コンボ"+(feverCount?"・🎉フィーバー"+feverCount+"回":"")+"\n🐶ワンワン「"+kassyLine()+"」\n"+rows.join("\n")+"\n\n犬好きなら60秒で何点取れる？\n#犬 #犬好き";
 }
 
 function countUp(el,to){
