@@ -335,6 +335,11 @@ body.fever .bot.sm svg{animation:feverbot .4s ease-in-out infinite alternate}
       <span class="txt"><span class="lv">ステップ1</span><h2>犬種ジャッジ</h2><p>写真の犬の犬種を4択で当てる</p></span>
       <span class="best">ベスト<b id="best-sort">0</b></span>
     </button>
+    <a class="tile" href="blade/" style="text-decoration:none;color:inherit">
+      <span class="ico sort">🌀</span>
+      <span class="txt"><span class="lv">NEW</span><h2>わんわんブレード</h2><p>好きな文字が3Dのコマに！回してぶつけるバトル</p></span>
+      <span class="best">あそぶ<b>▶</b></span>
+    </a>
     <div class="nick">
       <label for="nick">ニックネーム（任意・本名は入れないでください）</label>
       <input id="nick" maxlength="12" placeholder="例：かもみーる" autocomplete="off">
@@ -1183,7 +1188,7 @@ async function copyResult(){
 document.querySelectorAll(".ans").forEach(b=>b.addEventListener("click",()=>answer(b.dataset.c)));
 // ステップ2（左右ジャッジ）は準備中。再開するときは LR_OPEN を true にする
 document.querySelector(".tabs").style.display="none"; rankMode="sort";
-document.querySelectorAll(".tile").forEach(b=>b.addEventListener("click",()=>{ if(!b.disabled) start(b.dataset.mode); }));
+document.querySelectorAll(".tile[data-mode]").forEach(b=>b.addEventListener("click",()=>{ if(!b.disabled) start(b.dataset.mode); }));
 $("again").addEventListener("click",()=>start(mode));
 $("home").addEventListener("click",()=>{refreshMenu();show("menu")});
 $("quit").addEventListener("click",()=>{if(!ended&&total>0) track("quit-"+mode);clearCountdown();clearInterval(timer);ended=true;hideSheet();endFever();hush();refreshMenu();show("menu")});
